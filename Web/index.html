@@ -220,11 +220,6 @@
     <div class="section">
       <h2>3. ข้อความภาษาไทยกลาง <span class="badge">Output</span></h2>
       <textarea id="textOutput" class="text-output" placeholder="ข้อความที่ถอดได้จะแสดงที่นี่..." readonly></textarea>
-      <div class="controls" style="margin-top:12px;">
-        <button id="copyBtn" class="btn btn-secondary">📋 คัดลอก</button>
-        <button id="clearBtn" class="btn btn-clear">🗑️ ล้างข้อความ</button>
-        <button id="downloadBtn" class="btn btn-clear">💾 ดาวน์โหลด .txt</button>
-      </div>
     </div>
   </div>
 
@@ -245,9 +240,6 @@
   const transcribeFileBtn = document.getElementById('transcribeFileBtn');
 
   const textOutput = document.getElementById('textOutput');
-  const copyBtn = document.getElementById('copyBtn');
-  const clearBtn = document.getElementById('clearBtn');
-  const downloadBtn = document.getElementById('downloadBtn');
 
   // ===== Speech Recognition =====
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -416,39 +408,6 @@
     recordStatus.textContent = '✅ เล่นจบแล้ว';
   });
 
-  // ===== Text actions =====
-  copyBtn.addEventListener('click', async () => {
-    if (!textOutput.value) return;
-    try {
-      await navigator.clipboard.writeText(textOutput.value);
-      copyBtn.textContent = '✅ คัดลอกแล้ว';
-      setTimeout(() => copyBtn.textContent = '📋 คัดลอก', 1500);
-    } catch (err) {
-      alert('ไม่สามารถคัดลอกได้');
-    }
-  });
-
-  clearBtn.addEventListener('click', () => {
-    if (textOutput.value && !confirm('ต้องการล้างข้อความใช่หรือไม่?')) return;
-    textOutput.value = '';
-    finalText = '';
-  });
-
-  downloadBtn.addEventListener('click', () => {
-    if (!textOutput.value) {
-      alert('ยังไม่มีข้อความให้ดาวน์โหลด');
-      return;
-    }
-    const blob = new Blob([textOutput.value], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transcript_' + new Date().toISOString().slice(0,19).replace(/[:T]/g,'-') + '.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  });
 })();
 </script>
 </body>
