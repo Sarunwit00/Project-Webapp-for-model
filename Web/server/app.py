@@ -130,8 +130,14 @@ async def transcribe(file: UploadFile = File(...)):
     except Exception as exc:  # noqa: BLE001
         raise HTTPException(status_code=400, detail=f"อ่านไฟล์เสียงไม่ได้: {exc}")
 
+    dur = audio.size / TARGET_SR
+    peak = float(np.abs(audio).max()) if audio.size else 0.0
+    rms = float(np.sqrt(np.mean(audio ** 2))) if audio.size else 0.0
+    print(f"[transcribe] {file.filename}: {dur:.2f}s samples={audio.size} peak={peak:.4f} rms={rms:.4f}")
+
     text = transcribe_audio(audio)
-    return {"text": text}
+    print(f"[transcribe] -> {text!r}")
+    return {"text": text, "seconds": round(dur, 2), "peak": round(peak, 4)}
 
 
 # เสิร์ฟหน้าเว็บ (ต้อง mount ท้ายสุด เพราะ "/" จะ match ทุก path)

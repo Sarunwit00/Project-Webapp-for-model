@@ -11,6 +11,8 @@
   const recordLabel = document.getElementById('recordLabel');
   const recordStatus = document.getElementById('recordStatus');
   const recordedAudio = document.getElementById('recordedAudio');
+  const micMeter = document.getElementById('micMeter');
+  const micMeterFill = document.getElementById('micMeterFill');
 
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
@@ -54,7 +56,18 @@
     src.connect(offline.destination);
     src.start();
     const rendered = await offline.startRendering();
-    return encodeWav(rendered.getChannelData(0), TARGET_SR);
+    const ch = rendered.getChannelData(0);
+    let peak = 0;
+    for (let i = 0; i < ch.length; i++) {
+      const a = Math.abs(ch[i]);
+      if (a > peak) peak = a;
+    }
+    console.log(
+      '[stt] เสียงที่อ่านได้: ' + decoded.duration.toFixed(2) + 's @' + decoded.sampleRate +
+      'Hz ' + decoded.numberOfChannels + 'ch -> 16k mono, peak=' + peak.toFixed(4) +
+      (peak < 0.01 ? '  ⚠️ แทบเงียบ!' : '')
+    );
+    return encodeWav(ch, TARGET_SR);
   }
 
   function encodeWav(samples, sampleRate) {
@@ -99,7 +112,7 @@
       throw new Error(msg);
     }
     const data = await res.json();
-    return data.text || '';
+    return data; // { text, seconds, peak }
   }
 
   async function runTranscription(blob) {
@@ -108,9 +121,16 @@
     transcribeFileBtn.disabled = true;
     setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
     try {
-      const text = await transcribe(blob);
+      const data = await transcribe(blob);
+      const text = data.text || '';
       appendText(text);
-      setStatus(text ? '✅ ถอดเสียงเสร็จแล้ว' : '⚠️ ไม่พบข้อความในเสียง');
+      if (text) {
+        setStatus('✅ ถอดเสียงเสร็จแล้ว');
+      } else if ((data.peak || 0) < 0.01) {
+        setStatus('⚠️ แทบไม่มีเสียง — เช็กไมโครโฟน/อุปกรณ์อัด หรือพูดดังขึ้น');
+      } else {
+        setStatus('⚠️ ได้ยินเสียงแต่โมเดลถอดไม่ออก (ลองพูดชัด ๆ/ยาวขึ้น)');
+      }
     } catch (err) {
       console.error(err);
       if (/Failed to fetch|NetworkError|ERR_/i.test(err.message)) {
@@ -129,9 +149,61 @@
   let audioChunks = [];
   let micStream = null;
 
+  // แถบวัดระดับเสียงสด
+  let meterCtx = null, meterAnalyser = null, meterData = null, meterRaf = null, meterLevel = 0;
+
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
     setStatus('⚠️ เบราว์เซอร์ไม่รองรับการบันทึกเสียง (ใช้ Chrome/Edge/Firefox)');
     recordBtn.disabled = true;
+  }
+
+  function startMeter(stream) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      meterCtx = new AC();
+      const source = meterCtx.createMediaStreamSource(stream);
+      meterAnalyser = meterCtx.createAnalyser();
+      meterAnalyser.fftSize = 1024;
+      source.connect(meterAnalyser); // ไม่ต่อไป destination เพื่อกันเสียงหอน
+      meterData = new Float32Array(meterAnalyser.fftSize);
+      meterLevel = 0;
+      micMeter.hidden = false;
+      drawMeter();
+    } catch (err) {
+      console.warn('meter error', err);
+    }
+  }
+
+  function drawMeter() {
+    if (!meterAnalyser) return;
+    meterAnalyser.getFloatTimeDomainData(meterData);
+    let peak = 0;
+    for (let i = 0; i < meterData.length; i++) {
+      const a = Math.abs(meterData[i]);
+      if (a > peak) peak = a;
+    }
+    const target = Math.min(1, peak * 1.4);
+    // attack เร็ว / release ช้า ให้แถบดูนุ่ม
+    meterLevel = target > meterLevel ? target : meterLevel + (target - meterLevel) * 0.2;
+    micMeterFill.style.width = (meterLevel * 100).toFixed(1) + '%';
+    micMeterFill.classList.toggle('clip', meterLevel > 0.92);
+    meterRaf = requestAnimationFrame(drawMeter);
+  }
+
+  function stopMeter() {
+    if (meterRaf) cancelAnimationFrame(meterRaf);
+    meterRaf = null;
+    meterAnalyser = null;
+    meterData = null;
+    if (meterCtx) {
+      meterCtx.close().catch(() => {});
+      meterCtx = null;
+    }
+    if (micMeter) {
+      micMeter.hidden = true;
+      micMeterFill.style.width = '0%';
+      micMeterFill.classList.remove('clip');
+    }
   }
 
   async function startRecording() {
@@ -152,6 +224,7 @@
       };
 
       mediaRecorder.start();
+      startMeter(micStream);
       recordBtn.classList.add('recording');
       recordLabel.textContent = 'หยุดบันทึก';
       setStatus('🔴 กำลังบันทึก...');
@@ -165,6 +238,7 @@
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
     }
+    stopMeter();
     recordBtn.classList.remove('recording');
     recordLabel.textContent = 'เริ่มบันทึก';
     setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');

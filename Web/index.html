@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>แปลงเสียงเป็นข้อความภาษาไทย</title>
-<link rel="stylesheet" href="style.css" />
+<link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
   <div class="container">
@@ -20,6 +20,10 @@
           <span id="recordLabel">เริ่มบันทึก</span>
         </button>
         <span id="recordStatus" class="status">พร้อมบันทึก</span>
+      </div>
+      <div class="meter-wrap" id="micMeter" hidden>
+        <span class="meter-label">🎚️ ระดับเสียงไมค์</span>
+        <div class="meter"><div class="meter-fill" id="micMeterFill"></div></div>
       </div>
       <p class="info">กดหยุดบันทึกแล้วระบบจะส่งเสียงให้โมเดลถอดเป็นข้อความให้อัตโนมัติ</p>
       <audio id="recordedAudio" controls hidden></audio>
@@ -48,6 +52,6 @@
     </div>
   </div>
 
-<script src="script.js"></script>
+<script src="script.js?v=2"></script>
 </body>
 </html>

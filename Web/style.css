@@ -169,3 +169,30 @@ audio {
   font-weight: 500;
   word-break: break-all;
 }
+.meter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+.meter-label {
+  font-size: 13px;
+  color: #5f6368;
+  white-space: nowrap;
+}
+.meter {
+  flex: 1;
+  height: 14px;
+  background: #d8dee6;
+  border: 1px solid #c4ccd6;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.meter-fill {
+  height: 100%;
+  width: 0%;
+  background: #34a853;
+  border-radius: 999px;
+  transition: width 0.06s linear, background-color 0.12s linear;
+}
+.meter-fill.clip { background: #ea4335; }
