@@ -20,6 +20,8 @@
   const fileInput = document.getElementById('fileInput');
   const fileName = document.getElementById('fileName');
   const uploadedAudio = document.getElementById('uploadedAudio');
+  const uploadedRow = document.getElementById('uploadedRow');
+  const deleteUploadBtn = document.getElementById('deleteUploadBtn');
   const transcribeFileWrap = document.getElementById('transcribeFileWrap');
   const transcribeFileBtn = document.getElementById('transcribeFileBtn');
 
@@ -28,6 +30,7 @@
 
   let busy = false;
   let selectedFile = null;
+  let uploadedUrl = null;
 
   function setStatus(msg) {
     recordStatus.textContent = msg;
@@ -296,13 +299,32 @@
     }
     selectedFile = file;
     fileName.textContent = '📎 ' + file.name + '  (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
-    uploadedAudio.src = URL.createObjectURL(file);
-    uploadedAudio.hidden = false;
+    if (uploadedUrl) URL.revokeObjectURL(uploadedUrl);
+    uploadedUrl = URL.createObjectURL(file);
+    uploadedAudio.src = uploadedUrl;
+    uploadedRow.hidden = false;
     transcribeFileWrap.hidden = false;
   }
 
   transcribeFileBtn.addEventListener('click', () => {
     if (selectedFile) runTranscription(selectedFile);
+  });
+
+  // ===== ลบไฟล์เสียงที่อัปโหลด =====
+  deleteUploadBtn.addEventListener('click', () => {
+    uploadedAudio.pause();
+    if (uploadedUrl) {
+      URL.revokeObjectURL(uploadedUrl);
+      uploadedUrl = null;
+    }
+    uploadedAudio.removeAttribute('src');
+    uploadedAudio.load();
+    uploadedRow.hidden = true;
+    transcribeFileWrap.hidden = true;
+    fileName.textContent = '';
+    selectedFile = null;
+    fileInput.value = '';
+    setStatus('ลบไฟล์เสียงแล้ว');
   });
 
   // ===== ล้างข้อความ =====
