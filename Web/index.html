@@ -4,13 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>แปลงเสียงเป็นข้อความภาษาไทย</title>
-<link rel="stylesheet" href="style.css?v=3" />
+<link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
   <div class="container">
     <h1>🎙️ แปลงเสียงภาษาถิ่นเป็นข้อความภาษาไทย</h1>
-    <p class="subtitle">อัดเสียงหรืออัปโหลดไฟล์เสียง ระบบจะถอดข้อความด้วย<strong>โมเดล AI ของคุณเอง</strong> (ต้องเปิด backend ก่อน)</p>
-
+    
     <!-- Recording Section -->
     <div class="section">
       <h2>1. บันทึกเสียง <span class="badge">Live</span></h2>
@@ -26,7 +25,10 @@
         <div class="meter"><div class="meter-fill" id="micMeterFill"></div></div>
       </div>
       <p class="info">กดหยุดบันทึกแล้วระบบจะส่งเสียงให้โมเดลถอดเป็นข้อความให้อัตโนมัติ</p>
-      <audio id="recordedAudio" controls hidden></audio>
+      <div class="audio-row" id="recordedRow" hidden>
+        <audio id="recordedAudio" controls></audio>
+        <button id="deleteRecordingBtn" class="icon-btn" title="ลบไฟล์เสียงที่อัด" aria-label="ลบไฟล์เสียงที่อัด">✕</button>
+      </div>
     </div>
 
     <!-- Upload Section -->
@@ -55,6 +57,6 @@
     </div>
   </div>
 
-<script src="script.js?v=3"></script>
+<script src="script.js?v=4"></script>
 </body>
 </html>

@@ -11,6 +11,8 @@
   const recordLabel = document.getElementById('recordLabel');
   const recordStatus = document.getElementById('recordStatus');
   const recordedAudio = document.getElementById('recordedAudio');
+  const recordedRow = document.getElementById('recordedRow');
+  const deleteRecordingBtn = document.getElementById('deleteRecordingBtn');
   const micMeter = document.getElementById('micMeter');
   const micMeterFill = document.getElementById('micMeterFill');
 
@@ -149,6 +151,7 @@
   let mediaRecorder = null;
   let audioChunks = [];
   let micStream = null;
+  let recordedUrl = null;
 
   // แถบวัดระดับเสียงสด
   let meterCtx = null, meterAnalyser = null, meterData = null, meterRaf = null, meterLevel = 0;
@@ -218,8 +221,10 @@
       };
       mediaRecorder.onstop = async () => {
         const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-        recordedAudio.src = URL.createObjectURL(blob);
-        recordedAudio.hidden = false;
+        if (recordedUrl) URL.revokeObjectURL(recordedUrl);
+        recordedUrl = URL.createObjectURL(blob);
+        recordedAudio.src = recordedUrl;
+        recordedRow.hidden = false;
         if (micStream) micStream.getTracks().forEach((t) => t.stop());
         await runTranscription(blob);
       };
@@ -251,6 +256,19 @@
     } else {
       startRecording();
     }
+  });
+
+  // ===== ลบไฟล์เสียงที่อัด =====
+  deleteRecordingBtn.addEventListener('click', () => {
+    recordedAudio.pause();
+    if (recordedUrl) {
+      URL.revokeObjectURL(recordedUrl);
+      recordedUrl = null;
+    }
+    recordedAudio.removeAttribute('src');
+    recordedAudio.load();
+    recordedRow.hidden = true;
+    setStatus('ลบไฟล์เสียงที่อัดแล้ว');
   });
 
   // ===== อัปโหลดไฟล์ =====
