@@ -1,4 +1,11 @@
-(function() {
+(function () {
+  // ===== Config =====
+  // backend โมเดลรันที่พอร์ต 8000 เสมอ
+  // - ถ้าหน้าเว็บถูกเสิร์ฟจาก 8000 อยู่แล้ว -> ใช้ path สัมพัทธ์ (same-origin)
+  // - กรณีอื่น (Live Server 5500, เปิดไฟล์ file://) -> ยิงไปที่ http://127.0.0.1:8000 (CORS เปิดไว้แล้ว)
+  const API_BASE = location.port === '8000' ? '' : 'http://127.0.0.1:8000';
+  const TARGET_SR = 16000;
+
   // ===== Elements =====
   const recordBtn = document.getElementById('recordBtn');
   const recordLabel = document.getElementById('recordLabel');
@@ -9,104 +16,158 @@
   const fileInput = document.getElementById('fileInput');
   const fileName = document.getElementById('fileName');
   const uploadedAudio = document.getElementById('uploadedAudio');
-  const uploadWarn = document.getElementById('uploadWarn');
   const transcribeFileWrap = document.getElementById('transcribeFileWrap');
   const transcribeFileBtn = document.getElementById('transcribeFileBtn');
 
   const textOutput = document.getElementById('textOutput');
 
-  // ===== Speech Recognition =====
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  let recognition = null;
-  let isRecognizing = false;
-  let finalText = '';
+  let busy = false;
+  let selectedFile = null;
 
-  if (!SR) {
-    recordStatus.textContent = '⚠️ เบราว์เซอร์ไม่รองรับ (กรุณาใช้ Chrome หรือ Edge)';
-    recordBtn.disabled = true;
-  } else {
-    recognition = new SR();
-    recognition.lang = 'th-TH';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-
-    recognition.onresult = (event) => {
-      let interim = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalText += transcript + ' ';
-        } else {
-          interim += transcript;
-        }
-      }
-      textOutput.value = (finalText + interim).trim();
-    };
-
-    recognition.onerror = (e) => {
-      console.error('Speech recognition error:', e.error);
-      recordStatus.textContent = '❌ ข้อผิดพลาด: ' + e.error;
-    };
-
-    recognition.onend = () => {
-      if (isRecognizing) {
-        // Auto-restart for continuous recording
-        try { recognition.start(); } catch (err) {}
-      } else {
-        recordLabel.textContent = 'เริ่มบันทึก';
-        recordBtn.classList.remove('recording');
-        recordStatus.textContent = 'หยุดบันทึกแล้ว';
-      }
-    };
+  function setStatus(msg) {
+    recordStatus.textContent = msg;
   }
 
-  // ===== MediaRecorder for saving audio =====
+  function appendText(text) {
+    if (!text) return;
+    const cur = textOutput.value.trim();
+    textOutput.value = cur ? cur + '\n' + text : text;
+  }
+
+  // ===== แปลงเสียง (recorded blob / uploaded file) -> WAV 16kHz mono =====
+  async function blobToWav16k(blob) {
+    const arrayBuf = await blob.arrayBuffer();
+    const AC = window.AudioContext || window.webkitAudioContext;
+    const tmpCtx = new AC();
+    let decoded;
+    try {
+      decoded = await tmpCtx.decodeAudioData(arrayBuf);
+    } finally {
+      tmpCtx.close();
+    }
+
+    const frames = Math.max(1, Math.ceil(decoded.duration * TARGET_SR));
+    // 1 ช่อง + sample rate 16000 -> Web Audio จะ downmix เป็น mono และ resample ให้เอง
+    const offline = new OfflineAudioContext(1, frames, TARGET_SR);
+    const src = offline.createBufferSource();
+    src.buffer = decoded;
+    src.connect(offline.destination);
+    src.start();
+    const rendered = await offline.startRendering();
+    return encodeWav(rendered.getChannelData(0), TARGET_SR);
+  }
+
+  function encodeWav(samples, sampleRate) {
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
+    const writeStr = (off, s) => {
+      for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+    };
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + samples.length * 2, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);   // sub-chunk size
+    view.setUint16(20, 1, true);    // PCM
+    view.setUint16(22, 1, true);    // mono
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true); // byte rate
+    view.setUint16(32, 2, true);    // block align
+    view.setUint16(34, 16, true);   // bits per sample
+    writeStr(36, 'data');
+    view.setUint32(40, samples.length * 2, true);
+    let off = 44;
+    for (let i = 0; i < samples.length; i++, off += 2) {
+      const s = Math.max(-1, Math.min(1, samples[i]));
+      view.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+    }
+    return new Blob([view], { type: 'audio/wav' });
+  }
+
+  // ===== ส่งไป backend แล้วรับข้อความกลับ =====
+  async function transcribe(blob) {
+    const wav = await blobToWav16k(blob);
+    const fd = new FormData();
+    fd.append('file', wav, 'audio.wav');
+    const res = await fetch(API_BASE + '/transcribe', { method: 'POST', body: fd });
+    if (!res.ok) {
+      let msg = 'เซิร์ฟเวอร์ตอบกลับผิดพลาด (' + res.status + ')';
+      try {
+        const j = await res.json();
+        if (j && j.detail) msg = j.detail;
+      } catch (e) { /* ignore */ }
+      throw new Error(msg);
+    }
+    const data = await res.json();
+    return data.text || '';
+  }
+
+  async function runTranscription(blob) {
+    if (busy) return;
+    busy = true;
+    transcribeFileBtn.disabled = true;
+    setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
+    try {
+      const text = await transcribe(blob);
+      appendText(text);
+      setStatus(text ? '✅ ถอดเสียงเสร็จแล้ว' : '⚠️ ไม่พบข้อความในเสียง');
+    } catch (err) {
+      console.error(err);
+      if (/Failed to fetch|NetworkError|ERR_/i.test(err.message)) {
+        setStatus('❌ ติดต่อเซิร์ฟเวอร์ไม่ได้ — เปิด backend ก่อน (รัน server/run.bat)');
+      } else {
+        setStatus('❌ ' + err.message);
+      }
+    } finally {
+      busy = false;
+      transcribeFileBtn.disabled = false;
+    }
+  }
+
+  // ===== บันทึกเสียงด้วยไมโครโฟน =====
   let mediaRecorder = null;
   let audioChunks = [];
+  let micStream = null;
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+    setStatus('⚠️ เบราว์เซอร์ไม่รองรับการบันทึกเสียง (ใช้ Chrome/Edge/Firefox)');
+    recordBtn.disabled = true;
+  }
 
   async function startRecording() {
     try {
-      // Sync final text from textarea (in case user edited)
-      finalText = textOutput.value ? textOutput.value + ' ' : '';
-
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorder = new MediaRecorder(micStream);
       audioChunks = [];
 
       mediaRecorder.ondataavailable = (e) => {
         if (e.data.size > 0) audioChunks.push(e.data);
       };
-      mediaRecorder.onstop = () => {
-        const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
         recordedAudio.src = URL.createObjectURL(blob);
         recordedAudio.hidden = false;
-        stream.getTracks().forEach(t => t.stop());
+        if (micStream) micStream.getTracks().forEach((t) => t.stop());
+        await runTranscription(blob);
       };
+
       mediaRecorder.start();
-
-      isRecognizing = true;
-      try { recognition.start(); } catch (err) { console.warn(err); }
-
       recordBtn.classList.add('recording');
       recordLabel.textContent = 'หยุดบันทึก';
-      recordStatus.textContent = '🔴 กำลังบันทึก...';
+      setStatus('🔴 กำลังบันทึก...');
     } catch (err) {
       console.error(err);
-      recordStatus.textContent = '❌ ไม่สามารถเข้าถึงไมโครโฟน: ' + err.message;
+      setStatus('❌ เข้าถึงไมโครโฟนไม่ได้: ' + err.message);
     }
   }
 
   function stopRecording() {
-    isRecognizing = false;
-    if (recognition) {
-      try { recognition.stop(); } catch (err) {}
-    }
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
     }
     recordBtn.classList.remove('recording');
     recordLabel.textContent = 'เริ่มบันทึก';
-    recordStatus.textContent = '✅ บันทึกเสร็จสิ้น';
+    setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
   }
 
   recordBtn.addEventListener('click', () => {
@@ -117,69 +178,37 @@
     }
   });
 
-  // ===== File Upload =====
+  // ===== อัปโหลดไฟล์ =====
   dropzone.addEventListener('click', () => fileInput.click());
   dropzone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropzone.classList.add('dragover');
   });
-  dropzone.addEventListener('dragleave', () => {
-    dropzone.classList.remove('dragover');
-  });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
   dropzone.addEventListener('drop', (e) => {
     e.preventDefault();
     dropzone.classList.remove('dragover');
-    if (e.dataTransfer.files.length) {
-      handleFile(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
   });
   fileInput.addEventListener('change', (e) => {
     if (e.target.files.length) handleFile(e.target.files[0]);
   });
 
   function handleFile(file) {
-    if (!file.type.startsWith('audio/') && !/\.(mp3|wav|m4a|ogg|webm|aac|flac)$/i.test(file.name)) {
+    const ok = file.type.startsWith('audio/') ||
+      /\.(mp3|wav|m4a|ogg|webm|aac|flac)$/i.test(file.name);
+    if (!ok) {
       alert('กรุณาเลือกไฟล์เสียงเท่านั้น');
       return;
     }
+    selectedFile = file;
     fileName.textContent = '📎 ' + file.name + '  (' + (file.size / 1024 / 1024).toFixed(2) + ' MB)';
     uploadedAudio.src = URL.createObjectURL(file);
     uploadedAudio.hidden = false;
-    uploadWarn.hidden = false;
     transcribeFileWrap.hidden = false;
   }
 
-  // Transcribe uploaded file: play it AND start recognition (mic captures speakers)
-  transcribeFileBtn.addEventListener('click', async () => {
-    if (!recognition) return;
-    if (uploadedAudio.paused) {
-      try {
-        finalText = textOutput.value ? textOutput.value + ' ' : '';
-        await navigator.mediaDevices.getUserMedia({ audio: true })
-          .then(stream => stream.getTracks().forEach(t => t.stop()));
-        isRecognizing = true;
-        try { recognition.start(); } catch (err) {}
-        uploadedAudio.currentTime = 0;
-        await uploadedAudio.play();
-        transcribeFileBtn.textContent = '⏹️ หยุดถอดเสียง';
-        recordStatus.textContent = '🎧 กำลังเล่นและถอดเสียง...';
-      } catch (err) {
-        recordStatus.textContent = '❌ ' + err.message;
-      }
-    } else {
-      uploadedAudio.pause();
-      isRecognizing = false;
-      try { recognition.stop(); } catch (err) {}
-      transcribeFileBtn.textContent = '▶️ เล่นและถอดเสียง';
-      recordStatus.textContent = '✅ หยุดแล้ว';
-    }
+  transcribeFileBtn.addEventListener('click', () => {
+    if (selectedFile) runTranscription(selectedFile);
   });
-
-  uploadedAudio.addEventListener('ended', () => {
-    isRecognizing = false;
-    if (recognition) try { recognition.stop(); } catch (err) {}
-    transcribeFileBtn.textContent = '▶️ เล่นและถอดเสียง';
-    recordStatus.textContent = '✅ เล่นจบแล้ว';
-  });
-
 })();

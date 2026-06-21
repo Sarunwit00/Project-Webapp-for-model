@@ -9,7 +9,7 @@
 <body>
   <div class="container">
     <h1>🎙️ แปลงเสียงภาษาถิ่นเป็นข้อความภาษาไทย</h1>
-    <p class="subtitle">อัดเสียงหรืออัปโหลดไฟล์เสียง ระบบจะถอดข้อความภาษาไทยกลางให้อัตโนมัติ</p>
+    <p class="subtitle">อัดเสียงหรืออัปโหลดไฟล์เสียง ระบบจะถอดข้อความด้วย<strong>โมเดล AI ของคุณเอง</strong> (ต้องเปิด backend ก่อน)</p>
 
     <!-- Recording Section -->
     <div class="section">
@@ -21,6 +21,7 @@
         </button>
         <span id="recordStatus" class="status">พร้อมบันทึก</span>
       </div>
+      <p class="info">กดหยุดบันทึกแล้วระบบจะส่งเสียงให้โมเดลถอดเป็นข้อความให้อัตโนมัติ</p>
       <audio id="recordedAudio" controls hidden></audio>
     </div>
 
@@ -30,18 +31,13 @@
       <div id="dropzone" class="dropzone">
         <div class="icon">📁</div>
         <p><strong>คลิกเพื่อเลือกไฟล์</strong> หรือ ลากไฟล์มาวาง</p>
-        <p style="font-size:13px;">รองรับ .mp3, .wav, .m4a, .ogg, .webm</p>
+        <p style="font-size:13px;">รองรับ .mp3, .wav, .m4a </p>
         <input type="file" id="fileInput" accept="audio/*" />
       </div>
       <div id="fileName" class="file-name"></div>
       <audio id="uploadedAudio" controls hidden></audio>
-      <div class="warn" id="uploadWarn" hidden>
-        ℹ️ หมายเหตุ: เบราว์เซอร์ไม่สามารถถอดเสียงจากไฟล์ได้โดยตรง
-        ให้กดปุ่ม "เล่นและถอดเสียง" ด้านล่าง ระบบจะเปิดไมโครโฟนและฟังเสียงที่กำลังเล่นจากลำโพง
-        (ควรเปิดเสียงลำโพงให้ดังพอสมควร)
-      </div>
       <div class="controls" style="margin-top:12px;" id="transcribeFileWrap" hidden>
-        <button id="transcribeFileBtn" class="btn btn-secondary">▶️ เล่นและถอดเสียง</button>
+        <button id="transcribeFileBtn" class="btn btn-secondary">🤖 ถอดเสียงด้วยโมเดล</button>
       </div>
     </div>
 
