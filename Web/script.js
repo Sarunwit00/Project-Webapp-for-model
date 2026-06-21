@@ -1,9 +1,9 @@
 (function () {
   // ===== Config =====
-  // backend โมเดลรันที่พอร์ต 8000 เสมอ
-  // - ถ้าหน้าเว็บถูกเสิร์ฟจาก 8000 อยู่แล้ว -> ใช้ path สัมพัทธ์ (same-origin)
-  // - กรณีอื่น (Live Server 5500, เปิดไฟล์ file://) -> ยิงไปที่ http://127.0.0.1:8000 (CORS เปิดไว้แล้ว)
-  const API_BASE = location.port === '8000' ? '' : 'http://127.0.0.1:8000';
+  // หน้าเว็บถูกเสิร์ฟโดย backend เสมอ (ทั้งตอนรันที่ localhost:8000 และตอนเปิดผ่าน tunnel สาธารณะ)
+  // -> ใช้ same-origin (path สัมพัทธ์) จะได้ทำงานทั้ง localhost และโดเมน tunnel ของคนอื่น
+  // ยกเว้นเปิดผ่าน Live Server (5500) หรือเปิดไฟล์ตรง ๆ (file://) -> ชี้ไป backend ที่ localhost:8000
+  const API_BASE = (location.protocol === 'file:' || location.port === '5500') ? 'http://127.0.0.1:8000' : '';
   const TARGET_SR = 16000;
 
   // ===== Elements =====
