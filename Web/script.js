@@ -22,6 +22,7 @@
   const transcribeFileBtn = document.getElementById('transcribeFileBtn');
 
   const textOutput = document.getElementById('textOutput');
+  const clearBtn = document.getElementById('clearBtn');
 
   let busy = false;
   let selectedFile = null;
@@ -284,5 +285,11 @@
 
   transcribeFileBtn.addEventListener('click', () => {
     if (selectedFile) runTranscription(selectedFile);
+  });
+
+  // ===== ล้างข้อความ =====
+  clearBtn.addEventListener('click', () => {
+    textOutput.value = '';
+    textOutput.focus();
   });
 })();
