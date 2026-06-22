@@ -435,7 +435,7 @@
   suggestRegion.addEventListener('change', fillProvinces);
   fillProvinces();
 
-  fillFromOutputBtn.addEventListener('click', () => {
+  if (fillFromOutputBtn) fillFromOutputBtn.addEventListener('click', () => {
     const t = textOutput.value.trim();
     if (!t) {
       setSuggestStatus('⚠️ ยังไม่มีข้อความที่ถอดได้');
@@ -500,6 +500,10 @@
     const central = suggestCentral.value.trim();
     if (!dialect || !central) {
       showSuggestError('❌ กรุณากรอกทั้งประโยคภาษาถิ่นและคำแปลไทยกลาง');
+      return;
+    }
+    if (!suggestAudioBlob) {
+      showSuggestError('❌ กรุณาแนบไฟล์เสียงตัวอย่างก่อนส่ง');
       return;
     }
     suggestSubmitBtn.disabled = true;

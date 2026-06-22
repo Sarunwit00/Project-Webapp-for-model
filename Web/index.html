@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>แปลงเสียงเป็นข้อความภาษาไทย</title>
-<link rel="stylesheet" href="style.css?v=8" />
+<link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
   <div class="container">
@@ -62,13 +62,12 @@
 
     <!-- Suggest New Words Section -->
     <div class="section">
-      <h2>4. เสนอคำศัพท์ใหม่ <span class="badge">Contribute</span></h2>
+      <h2>4. เสนอประโยคใหม่ <span class="badge">Contribute</span></h2>
       <p class="info">ช่วยกันเพิ่มประโยคภาษาถิ่นและคำแปลไทยกลาง เพื่อพัฒนาความแม่นของโมเดล</p>
 
       <div class="field">
         <div class="field-head">
           <label for="suggestDialect">ประโยคภาษาถิ่น <span class="req">*</span></label>
-          <button type="button" id="fillFromOutputBtn" class="link-btn">↩ เติมจากผลถอดเสียงล่าสุด</button>
         </div>
         <textarea id="suggestDialect" class="suggest-input" rows="2" placeholder=" "></textarea>
       </div>
@@ -107,7 +106,7 @@
       </div>
 
       <div class="field">
-        <label>แนบเสียงตัวอย่าง</label>
+        <label>แนบเสียงตัวอย่าง <span class="req">*</span></label>
         <div class="suggest-audio">
           <button type="button" id="suggestRecordBtn" class="btn btn-secondary">🎙️ อัดเสียง</button>
           <button type="button" id="suggestPickBtn" class="btn btn-secondary">📁 เลือกไฟล์</button>
@@ -126,6 +125,6 @@
     </div>
   </div>
 
-<script src="script.js?v=8"></script>
+<script src="script.js?v=9"></script>
 </body>
 </html>

@@ -196,6 +196,11 @@ async def suggest(
             detail="กรุณากรอกทั้งประโยคภาษาถิ่นและคำแปลไทยกลาง",
         )
 
+    # ไฟล์เสียงตัวอย่าง "บังคับ" ต้องแนบมาด้วย
+    audio_bytes = await audio.read() if (audio is not None and audio.filename) else b""
+    if not audio_bytes:
+        raise HTTPException(status_code=400, detail="กรุณาแนบไฟล์เสียงตัวอย่าง")
+
     created_at = datetime.datetime.now().isoformat(timespec="seconds")
     conn = sqlite3.connect(str(DB_PATH))
     try:
@@ -207,19 +212,15 @@ async def suggest(
         )
         new_id = cur.lastrowid
 
-        audio_path = None
-        if audio is not None and audio.filename:
-            raw = await audio.read()
-            if raw:
-                ext = Path(audio.filename).suffix.lower()
-                if ext not in ALLOWED_AUDIO_EXT:
-                    ext = ".wav"
-                audio_path = f"{new_id}{ext}"
-                (AUDIO_DIR / audio_path).write_bytes(raw)
-                conn.execute(
-                    "UPDATE suggestions SET audio_path = ? WHERE id = ?",
-                    (audio_path, new_id),
-                )
+        ext = Path(audio.filename).suffix.lower()
+        if ext not in ALLOWED_AUDIO_EXT:
+            ext = ".wav"
+        audio_path = f"{new_id}{ext}"
+        (AUDIO_DIR / audio_path).write_bytes(audio_bytes)
+        conn.execute(
+            "UPDATE suggestions SET audio_path = ? WHERE id = ?",
+            (audio_path, new_id),
+        )
 
         conn.commit()
         total = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
