@@ -347,4 +347,197 @@
     clearOutputError();
     textOutput.focus();
   });
+
+  // ===== เสนอคำศัพท์ใหม่ =====
+  const suggestDialect = document.getElementById('suggestDialect');
+  const suggestCentral = document.getElementById('suggestCentral');
+  const suggestCategory = document.getElementById('suggestCategory');
+  const suggestRegion = document.getElementById('suggestRegion');
+  const suggestProvince = document.getElementById('suggestProvince');
+  const fillFromOutputBtn = document.getElementById('fillFromOutputBtn');
+  const suggestRecordBtn = document.getElementById('suggestRecordBtn');
+  const suggestPickBtn = document.getElementById('suggestPickBtn');
+  const suggestAudioInput = document.getElementById('suggestAudioInput');
+  const suggestAudioName = document.getElementById('suggestAudioName');
+  const suggestAudioClear = document.getElementById('suggestAudioClear');
+  const suggestAudioPreview = document.getElementById('suggestAudioPreview');
+  const suggestSubmitBtn = document.getElementById('suggestSubmitBtn');
+  const suggestStatus = document.getElementById('suggestStatus');
+  const suggestError = document.getElementById('suggestError');
+
+  // จังหวัดของแต่ละภาค (เริ่มภาคละ 1 จังหวัด เพิ่มทีหลังได้)
+  const PROVINCES = {
+    'เหนือ': ['เชียงใหม่'],
+    'อีสาน': ['ร้อยเอ็ด'],
+    'ใต้': ['นครศรีธรรมราช'],
+  };
+
+  function fillProvinces() {
+    const list = PROVINCES[suggestRegion.value] || [];
+    suggestProvince.innerHTML = '';
+    list.forEach((p) => {
+      const opt = document.createElement('option');
+      opt.value = p;
+      opt.textContent = p;
+      suggestProvince.appendChild(opt);
+    });
+  }
+
+  function setSuggestStatus(msg) {
+    suggestStatus.textContent = msg || '';
+  }
+
+  function showSuggestError(msg) {
+    suggestError.textContent = msg;
+    suggestError.hidden = false;
+  }
+
+  function clearSuggestError() {
+    suggestError.hidden = true;
+  }
+
+  // ----- เสียงที่แนบ (อัด/อัปโหลด) -----
+  let suggestAudioBlob = null;
+  let suggestAudioFilename = 'sample.webm';
+  let suggestAudioUrl = null;
+  let suggestRecorder = null;
+  let suggestChunks = [];
+  let suggestStream = null;
+  let suggestRecording = false;
+
+  function setSuggestAudio(blob, displayName, filename) {
+    suggestAudioBlob = blob;
+    suggestAudioFilename = filename;
+    if (suggestAudioUrl) URL.revokeObjectURL(suggestAudioUrl);
+    suggestAudioUrl = URL.createObjectURL(blob);
+    suggestAudioPreview.src = suggestAudioUrl;
+    suggestAudioPreview.hidden = false;
+    suggestAudioName.textContent = displayName || '';
+    suggestAudioClear.hidden = false;
+  }
+
+  function clearSuggestAudio() {
+    suggestAudioBlob = null;
+    suggestAudioFilename = 'sample.webm';
+    if (suggestAudioUrl) {
+      URL.revokeObjectURL(suggestAudioUrl);
+      suggestAudioUrl = null;
+    }
+    suggestAudioPreview.pause();
+    suggestAudioPreview.removeAttribute('src');
+    suggestAudioPreview.load();
+    suggestAudioPreview.hidden = true;
+    suggestAudioName.textContent = '';
+    suggestAudioClear.hidden = true;
+    suggestAudioInput.value = '';
+  }
+
+  suggestRegion.addEventListener('change', fillProvinces);
+  fillProvinces();
+
+  fillFromOutputBtn.addEventListener('click', () => {
+    const t = textOutput.value.trim();
+    if (!t) {
+      setSuggestStatus('⚠️ ยังไม่มีข้อความที่ถอดได้');
+      return;
+    }
+    const lines = t.split('\n').filter(Boolean);
+    suggestDialect.value = lines[lines.length - 1];
+    suggestDialect.focus();
+    setSuggestStatus('');
+  });
+
+  suggestAudioClear.addEventListener('click', clearSuggestAudio);
+
+  suggestPickBtn.addEventListener('click', () => suggestAudioInput.click());
+  suggestAudioInput.addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    if (f) setSuggestAudio(f, '📎 ' + f.name, f.name);
+  });
+
+  suggestRecordBtn.addEventListener('click', async () => {
+    if (suggestRecording) {
+      if (suggestRecorder && suggestRecorder.state !== 'inactive') suggestRecorder.stop();
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+      setSuggestStatus('⚠️ เบราว์เซอร์ไม่รองรับการอัดเสียง');
+      return;
+    }
+    try {
+      suggestStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      suggestRecorder = new MediaRecorder(suggestStream);
+      suggestChunks = [];
+      suggestRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) suggestChunks.push(e.data);
+      };
+      suggestRecorder.onstop = () => {
+        const mime = suggestRecorder.mimeType || 'audio/webm';
+        let ext = 'webm';
+        if (mime.includes('ogg')) ext = 'ogg';
+        else if (mime.includes('mp4') || mime.includes('m4a') || mime.includes('aac')) ext = 'm4a';
+        else if (mime.includes('wav')) ext = 'wav';
+        const blob = new Blob(suggestChunks, { type: mime });
+        if (suggestStream) suggestStream.getTracks().forEach((t) => t.stop());
+        setSuggestAudio(blob, '🎙️ เสียงที่อัด', 'sample.' + ext);
+        suggestRecording = false;
+        suggestRecordBtn.textContent = '🎙️ อัดเสียง';
+        setSuggestStatus('');
+      };
+      suggestRecorder.start();
+      suggestRecording = true;
+      suggestRecordBtn.textContent = '⏹ หยุดอัด';
+      setSuggestStatus('🔴 กำลังอัด...');
+    } catch (err) {
+      console.error(err);
+      setSuggestStatus('❌ เข้าถึงไมโครโฟนไม่ได้');
+    }
+  });
+
+  suggestSubmitBtn.addEventListener('click', async () => {
+    clearSuggestError();
+    const dialect = suggestDialect.value.trim();
+    const central = suggestCentral.value.trim();
+    if (!dialect || !central) {
+      showSuggestError('❌ กรุณากรอกทั้งประโยคภาษาถิ่นและคำแปลไทยกลาง');
+      return;
+    }
+    suggestSubmitBtn.disabled = true;
+    setSuggestStatus('⏳ กำลังส่ง...');
+    try {
+      const fd = new FormData();
+      fd.append('dialect_text', dialect);
+      fd.append('central_text', central);
+      fd.append('category', suggestCategory.value);
+      fd.append('region', suggestRegion.value);
+      fd.append('province', suggestProvince.value);
+      if (suggestAudioBlob) {
+        fd.append('audio', suggestAudioBlob, suggestAudioFilename);
+      }
+      const res = await fetch(API_BASE + '/suggest', { method: 'POST', body: fd });
+      if (!res.ok) {
+        let msg = 'ส่งไม่สำเร็จ (' + res.status + ')';
+        try {
+          const j = await res.json();
+          if (j && j.detail) msg = j.detail;
+        } catch (e) { /* ignore */ }
+        throw new Error(msg);
+      }
+      const data = await res.json();
+      setSuggestStatus('✅ ขอบคุณ! ส่งแล้ว (รวม ' + (data.total != null ? data.total : '?') + ' คำ)');
+      suggestDialect.value = '';
+      suggestCentral.value = '';
+      clearSuggestAudio();
+    } catch (err) {
+      console.error(err);
+      if (/Failed to fetch|NetworkError|ERR_/i.test(err.message)) {
+        showSuggestError('❌ ติดต่อเซิร์ฟเวอร์ไม่ได้ — เปิด backend ก่อน (รัน server/run.bat)');
+      } else {
+        showSuggestError('❌ ' + err.message);
+      }
+      setSuggestStatus('');
+    } finally {
+      suggestSubmitBtn.disabled = false;
+    }
+  });
 })();

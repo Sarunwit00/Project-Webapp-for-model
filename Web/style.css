@@ -184,6 +184,77 @@ audio {
   font-size: 16px;
   font-weight: 700;
 }
+/* ===== ส่วนเสนอคำศัพท์ใหม่ ===== */
+.field { margin-bottom: 14px; }
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #34495e;
+  margin-bottom: 6px;
+}
+.field-head label { margin-bottom: 0; }
+.req { color: #d93025; }
+.optional { color: #9aa0a6; font-weight: 400; font-size: 12px; }
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.suggest-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dadce0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #202124;
+  background: #ffffff;
+  resize: vertical;
+}
+.suggest-input:focus {
+  outline: none;
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+}
+.link-btn {
+  border: none;
+  background: none;
+  color: #1a73e8;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+.link-btn:hover { text-decoration: underline; }
+.suggest-audio {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.suggest-audio .btn { padding: 8px 16px; font-size: 14px; }
+.suggest-audio-name {
+  font-size: 13px;
+  color: #5f6368;
+  word-break: break-all;
+}
+.btn-primary {
+  background: #1a73e8;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(26,115,232,0.25);
+}
+.btn-primary:hover { background: #1761c7; transform: translateY(-1px); }
+@media (max-width: 560px) {
+  .field-grid { grid-template-columns: 1fr; }
+}
 .info {
   font-size: 13px;
   color: #5f6368;

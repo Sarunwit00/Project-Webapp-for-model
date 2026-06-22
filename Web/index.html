@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>แปลงเสียงเป็นข้อความภาษาไทย</title>
-<link rel="stylesheet" href="style.css?v=7" />
+<link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body>
   <div class="container">
@@ -59,8 +59,73 @@
         <button id="clearBtn" class="btn btn-clear">🗑️ ล้างข้อความ</button>
       </div>
     </div>
+
+    <!-- Suggest New Words Section -->
+    <div class="section">
+      <h2>4. เสนอคำศัพท์ใหม่ <span class="badge">Contribute</span></h2>
+      <p class="info">ช่วยกันเพิ่มคำ/ประโยคภาษาถิ่นและคำแปลไทยกลาง เพื่อพัฒนาความแม่นของโมเดล</p>
+
+      <div class="field">
+        <div class="field-head">
+          <label for="suggestDialect">ประโยคภาษาถิ่น <span class="req">*</span></label>
+          <button type="button" id="fillFromOutputBtn" class="link-btn">↩ เติมจากผลถอดเสียงล่าสุด</button>
+        </div>
+        <textarea id="suggestDialect" class="suggest-input" rows="2" placeholder=" "></textarea>
+      </div>
+
+      <div class="field">
+        <label for="suggestCentral">คำแปลไทยกลาง <span class="req">*</span></label>
+        <textarea id="suggestCentral" class="suggest-input" rows="2" placeholder=" "></textarea>
+      </div>
+
+      <div class="field-grid">
+        <div class="field">
+          <label for="suggestCategory">หมวดหมู่</label>
+          <select id="suggestCategory" class="suggest-input">
+            <option value="การทักทาย/การแนะนำตัว">การทักทาย / การแนะนำตัว</option>
+            <option value="ชีวิตประจำวัน">ชีวิตประจำวัน</option>
+            <option value="อาหารการกิน">อาหารการกิน</option>
+            <option value="การเดินทาง">การเดินทาง</option>
+            <option value="อารมณ์/ความรู้สึก">อารมณ์ / ความรู้สึก</option>
+            <option value="เวลา/ฤดูกาล">เวลา / ฤดูกาล</option>
+            <option value="สุขภาพ">สุขภาพ</option>
+            <option value="คำอุทาน">คำอุทาน</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="suggestRegion">ภาค</label>
+          <select id="suggestRegion" class="suggest-input">
+            <option value="เหนือ">ภาคเหนือ</option>
+            <option value="อีสาน">ภาคอีสาน</option>
+            <option value="ใต้">ภาคใต้</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="suggestProvince">จังหวัด</label>
+          <select id="suggestProvince" class="suggest-input"></select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>แนบเสียงตัวอย่าง</label>
+        <div class="suggest-audio">
+          <button type="button" id="suggestRecordBtn" class="btn btn-secondary">🎙️ อัดเสียง</button>
+          <button type="button" id="suggestPickBtn" class="btn btn-secondary">📁 เลือกไฟล์</button>
+          <input type="file" id="suggestAudioInput" accept="audio/*" hidden />
+          <span id="suggestAudioName" class="suggest-audio-name"></span>
+          <button type="button" id="suggestAudioClear" class="icon-btn" title="ลบเสียงที่แนบ" hidden>✕</button>
+        </div>
+        <audio id="suggestAudioPreview" controls hidden></audio>
+      </div>
+
+      <div class="controls" style="margin-top:8px;">
+        <button id="suggestSubmitBtn" class="btn btn-primary">📨 ส่งคำศัพท์</button>
+        <span id="suggestStatus" class="status"></span>
+      </div>
+      <p id="suggestError" class="output-error" role="alert" hidden></p>
+    </div>
   </div>
 
-<script src="script.js?v=7"></script>
+<script src="script.js?v=8"></script>
 </body>
 </html>

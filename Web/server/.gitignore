@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 cloudflared.exe
+suggestions.db
+suggestions_audio/
