@@ -26,6 +26,7 @@
   const transcribeFileBtn = document.getElementById('transcribeFileBtn');
 
   const textOutput = document.getElementById('textOutput');
+  const outputError = document.getElementById('outputError');
   const clearBtn = document.getElementById('clearBtn');
 
   let busy = false;
@@ -40,6 +41,16 @@
     if (!text) return;
     const cur = textOutput.value.trim();
     textOutput.value = cur ? cur + '\n' + text : text;
+  }
+
+  // แสดง/ซ่อนข้อความสีแดงเมื่อโมเดลถอดเสียงไม่ออก
+  function showOutputError(msg) {
+    outputError.textContent = msg;
+    outputError.hidden = false;
+  }
+
+  function clearOutputError() {
+    outputError.hidden = true;
   }
 
   // ===== แปลงเสียง (recorded blob / uploaded file) -> WAV 16kHz mono =====
@@ -125,16 +136,19 @@
     if (busy) return;
     busy = true;
     transcribeFileBtn.disabled = true;
+    clearOutputError();
     setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
     try {
       const data = await transcribe(blob);
       const text = data.text || '';
-      appendText(text);
       if (text) {
+        appendText(text);
         setStatus('✅ ถอดเสียงเสร็จแล้ว');
       } else if ((data.peak || 0) < 0.01) {
+        showOutputError('❌ ไม่สามารถถอดข้อความได้');
         setStatus('⚠️ แทบไม่มีเสียง — เช็กไมโครโฟน/อุปกรณ์อัด หรือพูดดังขึ้น');
       } else {
+        showOutputError('❌ ไม่สามารถถอดข้อความได้');
         setStatus('⚠️ ได้ยินเสียงแต่โมเดลถอดไม่ออก (ลองพูดชัด ๆ/ยาวขึ้น)');
       }
     } catch (err) {
@@ -330,6 +344,7 @@
   // ===== ล้างข้อความ =====
   clearBtn.addEventListener('click', () => {
     textOutput.value = '';
+    clearOutputError();
     textOutput.focus();
   });
 })();
