@@ -386,7 +386,15 @@ def suggest_audio(name: str):
     return FileResponse(str(target))
 
 
-# เสิร์ฟ admin.html แบบห้าม cache (เบราว์เซอร์จะได้เห็นเวอร์ชันล่าสุดเสมอ)
+# เสิร์ฟหน้าหลัก + admin แบบห้าม cache (เบราว์เซอร์จะได้เห็นเวอร์ชันล่าสุดเสมอ)
+@app.get("/", include_in_schema=False)
+@app.get("/index.html", include_in_schema=False)
+def index_page():
+    resp = FileResponse(str(WEB_DIR / "index.html"), media_type="text/html")
+    resp.headers["Cache-Control"] = "no-store, must-revalidate"
+    return resp
+
+
 @app.get("/admin.html", include_in_schema=False)
 def admin_page():
     resp = FileResponse(str(WEB_DIR / "admin.html"), media_type="text/html")
