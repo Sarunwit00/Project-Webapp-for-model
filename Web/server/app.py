@@ -29,7 +29,7 @@ import numpy as np
 import torch
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 
@@ -265,6 +265,84 @@ def suggest_export():
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": "attachment; filename=suggestions.csv"},
     )
+
+
+# ---------------------------------------------------------------------------
+# จัดการรายการที่เสนอเข้ามา (สำหรับหน้า admin)
+# ---------------------------------------------------------------------------
+VALID_STATUS = {"pending", "approved", "rejected"}
+
+
+@app.get("/suggest/list")
+def suggest_list(status: str = ""):
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    try:
+        if status in VALID_STATUS:
+            rows = conn.execute(
+                "SELECT * FROM suggestions WHERE status = ? ORDER BY id DESC", (status,)
+            ).fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM suggestions ORDER BY id DESC").fetchall()
+        counts = {
+            s: conn.execute(
+                "SELECT COUNT(*) FROM suggestions WHERE status = ?", (s,)
+            ).fetchone()[0]
+            for s in VALID_STATUS
+        }
+        total = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
+    finally:
+        conn.close()
+    return {"items": [dict(r) for r in rows], "counts": counts, "total": total}
+
+
+@app.post("/suggest/{sid}/status")
+def suggest_set_status(sid: int, status: str = Form(...)):
+    if status not in VALID_STATUS:
+        raise HTTPException(status_code=400, detail="สถานะไม่ถูกต้อง")
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        cur = conn.execute(
+            "UPDATE suggestions SET status = ? WHERE id = ?", (status, sid)
+        )
+        conn.commit()
+        changed = cur.rowcount
+    finally:
+        conn.close()
+    if not changed:
+        raise HTTPException(status_code=404, detail="ไม่พบรายการที่ระบุ")
+    return {"ok": True, "id": sid, "status": status}
+
+
+@app.delete("/suggest/{sid}")
+def suggest_delete(sid: int):
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        row = conn.execute(
+            "SELECT audio_path FROM suggestions WHERE id = ?", (sid,)
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail="ไม่พบรายการที่ระบุ")
+        conn.execute("DELETE FROM suggestions WHERE id = ?", (sid,))
+        conn.commit()
+    finally:
+        conn.close()
+    if row[0]:
+        audio_file = AUDIO_DIR / row[0]
+        if audio_file.exists():
+            try:
+                audio_file.unlink()
+            except OSError:
+                pass
+    return {"ok": True, "id": sid}
+
+
+@app.get("/suggest/audio/{name}")
+def suggest_audio(name: str):
+    target = (AUDIO_DIR / name).resolve()
+    if target.parent != AUDIO_DIR.resolve() or not target.is_file():
+        raise HTTPException(status_code=404, detail="ไม่พบไฟล์เสียง")
+    return FileResponse(str(target))
 
 
 # เสิร์ฟหน้าเว็บ (ต้อง mount ท้ายสุด เพราะ "/" จะ match ทุก path)
