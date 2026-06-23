@@ -4,3 +4,4 @@ __pycache__/
 cloudflared.exe
 suggestions.db
 suggestions_audio/
+.admin_login

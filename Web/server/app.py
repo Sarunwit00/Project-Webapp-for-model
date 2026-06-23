@@ -12,6 +12,7 @@ import csv
 import datetime
 import io
 import os
+import secrets
 import sqlite3
 import sys
 import wave
@@ -27,7 +28,7 @@ except Exception:  # noqa: BLE001
 
 import numpy as np
 import torch
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
@@ -179,6 +180,46 @@ def init_suggestions_db():
 init_suggestions_db()
 
 
+# ---------------------------------------------------------------------------
+# บัญชีผู้ดูแลหน้า admin (username + password)
+# ที่มา: env ADMIN_USER/ADMIN_PASS > ไฟล์ .admin_login (บรรทัด1=user, บรรทัด2=pass)
+# ---------------------------------------------------------------------------
+ADMIN_LOGIN_FILE = HERE.parent / ".admin_login"
+ADMIN_USER = os.environ.get("ADMIN_USER", "").strip()
+ADMIN_PASS = os.environ.get("ADMIN_PASS", "").strip()
+if (not ADMIN_USER or not ADMIN_PASS) and ADMIN_LOGIN_FILE.exists():
+    _lines = ADMIN_LOGIN_FILE.read_text(encoding="utf-8").splitlines()
+    if not ADMIN_USER and len(_lines) >= 1:
+        ADMIN_USER = _lines[0].strip()
+    if not ADMIN_PASS and len(_lines) >= 2:
+        ADMIN_PASS = _lines[1].strip()
+if not ADMIN_USER:
+    ADMIN_USER = "admin"
+if not ADMIN_PASS:
+    ADMIN_PASS = secrets.token_urlsafe(9)
+    ADMIN_LOGIN_FILE.write_text(f"{ADMIN_USER}\n{ADMIN_PASS}\n", encoding="utf-8")
+    print(f"[admin] สร้างบัญชี admin ใหม่ -> user: {ADMIN_USER}  pass: {ADMIN_PASS}")
+print(f"[admin] บัญชี admin: ดู/แก้ได้ที่ {ADMIN_LOGIN_FILE} (บรรทัด1=username, บรรทัด2=password)")
+
+# โทเคนใช้งานหลังล็อกอิน (สุ่มใหม่ทุกครั้งที่เปิดเซิร์ฟเวอร์)
+ADMIN_TOKEN = secrets.token_urlsafe(24)
+
+
+def require_admin(x_admin_token: str = Header(""), token: str = ""):
+    """ตรวจโทเคนที่ได้หลังล็อกอิน รับได้ทั้ง header X-Admin-Token และ query ?token="""
+    provided = x_admin_token or token
+    if not secrets.compare_digest(provided, ADMIN_TOKEN):
+        raise HTTPException(status_code=401, detail="ต้องเข้าสู่ระบบผู้ดูแลก่อน")
+
+
+@app.post("/admin/login")
+def admin_login(username: str = Form(""), password: str = Form("")):
+    ok = secrets.compare_digest(username, ADMIN_USER) and secrets.compare_digest(password, ADMIN_PASS)
+    if not ok:
+        raise HTTPException(status_code=401, detail="ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+    return {"ok": True, "token": ADMIN_TOKEN}
+
+
 @app.post("/suggest")
 async def suggest(
     dialect_text: str = Form(""),
@@ -242,7 +283,7 @@ def suggest_count():
     return {"total": total}
 
 
-@app.get("/suggest/export.csv")
+@app.get("/suggest/export.csv", dependencies=[Depends(require_admin)])
 def suggest_export():
     conn = sqlite3.connect(str(DB_PATH))
     rows = conn.execute(
@@ -273,7 +314,7 @@ def suggest_export():
 VALID_STATUS = {"pending", "approved", "rejected"}
 
 
-@app.get("/suggest/list")
+@app.get("/suggest/list", dependencies=[Depends(require_admin)])
 def suggest_list(status: str = ""):
     conn = sqlite3.connect(str(DB_PATH))
     conn.row_factory = sqlite3.Row
@@ -296,7 +337,7 @@ def suggest_list(status: str = ""):
     return {"items": [dict(r) for r in rows], "counts": counts, "total": total}
 
 
-@app.post("/suggest/{sid}/status")
+@app.post("/suggest/{sid}/status", dependencies=[Depends(require_admin)])
 def suggest_set_status(sid: int, status: str = Form(...)):
     if status not in VALID_STATUS:
         raise HTTPException(status_code=400, detail="สถานะไม่ถูกต้อง")
@@ -314,7 +355,7 @@ def suggest_set_status(sid: int, status: str = Form(...)):
     return {"ok": True, "id": sid, "status": status}
 
 
-@app.delete("/suggest/{sid}")
+@app.delete("/suggest/{sid}", dependencies=[Depends(require_admin)])
 def suggest_delete(sid: int):
     conn = sqlite3.connect(str(DB_PATH))
     try:
@@ -337,12 +378,20 @@ def suggest_delete(sid: int):
     return {"ok": True, "id": sid}
 
 
-@app.get("/suggest/audio/{name}")
+@app.get("/suggest/audio/{name}", dependencies=[Depends(require_admin)])
 def suggest_audio(name: str):
     target = (AUDIO_DIR / name).resolve()
     if target.parent != AUDIO_DIR.resolve() or not target.is_file():
         raise HTTPException(status_code=404, detail="ไม่พบไฟล์เสียง")
     return FileResponse(str(target))
+
+
+# เสิร์ฟ admin.html แบบห้าม cache (เบราว์เซอร์จะได้เห็นเวอร์ชันล่าสุดเสมอ)
+@app.get("/admin.html", include_in_schema=False)
+def admin_page():
+    resp = FileResponse(str(WEB_DIR / "admin.html"), media_type="text/html")
+    resp.headers["Cache-Control"] = "no-store, must-revalidate"
+    return resp
 
 
 # เสิร์ฟหน้าเว็บ (ต้อง mount ท้ายสุด เพราะ "/" จะ match ทุก path)
