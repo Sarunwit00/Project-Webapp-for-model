@@ -285,12 +285,15 @@ def suggest_count():
 
 
 @app.get("/suggest/export.csv", dependencies=[Depends(require_admin)])
-def suggest_export():
+def suggest_export(status: str = ""):
+    # กรองตามสถานะที่เลือกในหน้า admin ผ่าน ?status= (pending/approved/rejected) ไม่ระบุ = ทั้งหมด
+    sql = ("SELECT id, dialect_text, central_text, category, region, province, "
+           "audio_path, status, created_at FROM suggestions")
     conn = sqlite3.connect(str(DB_PATH))
-    rows = conn.execute(
-        "SELECT id, dialect_text, central_text, category, region, province, "
-        "audio_path, status, created_at FROM suggestions ORDER BY id"
-    ).fetchall()
+    if status in VALID_STATUS:
+        rows = conn.execute(sql + " WHERE status = ? ORDER BY id", (status,)).fetchall()
+    else:
+        rows = conn.execute(sql + " ORDER BY id").fetchall()
     conn.close()
 
     buf = io.StringIO()
@@ -302,21 +305,25 @@ def suggest_export():
     ])
     writer.writerows(rows)
 
+    suffix = f"_{status}" if status in VALID_STATUS else ""
     return Response(
         content=buf.getvalue(),
         media_type="text/csv; charset=utf-8",
-        headers={"Content-Disposition": "attachment; filename=suggestions.csv"},
+        headers={"Content-Disposition": f"attachment; filename=suggestions{suffix}.csv"},
     )
 
 
 @app.get("/suggest/export.zip", dependencies=[Depends(require_admin)])
-def suggest_export_zip():
-    """ดาวน์โหลดทุกอย่างในไฟล์เดียว: suggestions.csv + ไฟล์เสียงทั้งหมด (โฟลเดอร์ audio/)"""
+def suggest_export_zip(status: str = ""):
+    """ดาวน์โหลดในไฟล์เดียว: suggestions.csv + ไฟล์เสียง (โฟลเดอร์ audio/)
+    กรองตามสถานะผ่าน ?status= (pending/approved/rejected) ไม่ระบุ = ทั้งหมด"""
+    sql = ("SELECT id, dialect_text, central_text, category, region, province, "
+           "audio_path, status, created_at FROM suggestions")
     conn = sqlite3.connect(str(DB_PATH))
-    rows = conn.execute(
-        "SELECT id, dialect_text, central_text, category, region, province, "
-        "audio_path, status, created_at FROM suggestions ORDER BY id"
-    ).fetchall()
+    if status in VALID_STATUS:
+        rows = conn.execute(sql + " WHERE status = ? ORDER BY id", (status,)).fetchall()
+    else:
+        rows = conn.execute(sql + " ORDER BY id").fetchall()
     conn.close()
 
     # สร้าง CSV (เหมือน /suggest/export.csv)
@@ -341,10 +348,11 @@ def suggest_export_zip():
             if audio_file.is_file():
                 zf.write(audio_file, f"audio/{audio_name}")
 
+    suffix = f"_{status}" if status in VALID_STATUS else ""
     return Response(
         content=zip_buf.getvalue(),
         media_type="application/zip",
-        headers={"Content-Disposition": "attachment; filename=suggestions_export.zip"},
+        headers={"Content-Disposition": f"attachment; filename=suggestions{suffix}_export.zip"},
     )
 
 

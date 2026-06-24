@@ -82,7 +82,7 @@
         <span class="spacer"></span>
         <button class="filter-btn" id="refreshBtn">🔄 รีเฟรช</button>
         <a class="btn btn-secondary" id="csvLink" href="#">⬇️ ดาวน์โหลด CSV</a>
-        <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลดทั้งหมด (CSV + เสียง)</a>
+        <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลด CSV + เสียง</a>
       </div>
 
       <div id="status" class="status"></div>
@@ -249,8 +249,10 @@
       const data = await res.json();
       showContent();
       render(data);
-      csvLink.href = API_BASE + '/suggest/export.csv?token=' + encodeURIComponent(token());
-      zipLink.href = API_BASE + '/suggest/export.zip?token=' + encodeURIComponent(token());
+      // ลิงก์ดาวน์โหลดทำตามตัวกรองที่เลือกอยู่ (ว่าง = ทั้งหมด)
+      const statusQS = currentStatus ? ('&status=' + encodeURIComponent(currentStatus)) : '';
+      csvLink.href = API_BASE + '/suggest/export.csv?token=' + encodeURIComponent(token()) + statusQS;
+      zipLink.href = API_BASE + '/suggest/export.zip?token=' + encodeURIComponent(token()) + statusQS;
       setStatusMsg('');
     } catch (err) {
       if (err.message === 'unauthorized') return;
