@@ -527,8 +527,7 @@
         } catch (e) { /* ignore */ }
         throw new Error(msg);
       }
-      const data = await res.json();
-      setSuggestStatus('✅ ขอบคุณ! ส่งแล้ว (รวม ' + (data.total != null ? data.total : '?') + ' ประโยค)');
+      setSuggestStatus('');
       suggestDialect.value = '';
       suggestCentral.value = '';
       clearSuggestAudio();
