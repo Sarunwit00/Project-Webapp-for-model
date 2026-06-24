@@ -469,6 +469,39 @@ def suggest_delete(sid: int):
     return {"ok": True, "id": sid}
 
 
+@app.post("/suggest/reset_all", dependencies=[Depends(require_admin)])
+def suggest_reset_all():
+    """ล้างรายการทั้งหมด + ลบไฟล์เสียงทุกไฟล์ + รีเซ็ตตัวนับ id ให้เริ่มที่ 1 ใหม่
+    (ใช้ตอนเคลียร์ข้อมูลทดสอบก่อนเริ่มเก็บข้อมูลจริง) — ย้อนกลับไม่ได้
+
+    ต่างจากปุ่มลบรายตัว ตรงที่ลบแถวใน sqlite_sequence ด้วย ตัวนับ AUTOINCREMENT
+    จึงถอยกลับมาเริ่มที่ 1 (ปุ่มลบปกติไม่แตะ sqlite_sequence เลขเลยนับต่อไปเรื่อย ๆ)
+    """
+    conn = sqlite3.connect(str(DB_PATH))
+    try:
+        deleted_rows = conn.execute("SELECT COUNT(*) FROM suggestions").fetchone()[0]
+        conn.execute("DELETE FROM suggestions")
+        try:
+            conn.execute("DELETE FROM sqlite_sequence WHERE name = 'suggestions'")
+        except sqlite3.OperationalError:
+            pass  # ตาราง sqlite_sequence ยังไม่ถูกสร้าง (ยังไม่เคย insert) — ไม่ต้องทำอะไร
+        conn.commit()
+    finally:
+        conn.close()
+
+    deleted_audio = 0
+    for f in AUDIO_DIR.iterdir():
+        if f.is_file():
+            try:
+                f.unlink()
+                deleted_audio += 1
+            except OSError:
+                pass
+
+    print(f"[reset_all] ลบ {deleted_rows} รายการ + {deleted_audio} ไฟล์เสียง, รีเซ็ตตัวนับ id แล้ว")
+    return {"ok": True, "deleted_rows": deleted_rows, "deleted_audio": deleted_audio}
+
+
 @app.get("/suggest/audio/{name}", dependencies=[Depends(require_admin)])
 def suggest_audio(name: str):
     target = (AUDIO_DIR / name).resolve()

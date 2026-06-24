@@ -27,6 +27,8 @@
   .admin-bar .spacer { margin-left:auto; }
   .filter-btn { padding:8px 16px; border-radius:999px; border:1px solid #dadce0; background:#fff; cursor:pointer; font-family:inherit; font-size:14px; color:#3c4043; }
   .filter-btn.active { background:#1a73e8; color:#fff; border-color:#1a73e8; }
+  .btn-danger { background:#c5221f; color:#fff; border:1px solid #c5221f; }
+  .btn-danger:hover { background:#a01813; border-color:#a01813; }
   .table-wrap { overflow-x:auto; }
   table.admin { width:100%; border-collapse:collapse; font-size:14px; }
   table.admin th, table.admin td { padding:10px; border-bottom:1px solid #e3e8ee; text-align:left; vertical-align:top; }
@@ -84,6 +86,7 @@
         <a class="btn btn-secondary" id="csvLink" href="#">⬇️ ดาวน์โหลด CSV</a>
         <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลด CSV + เสียง</a>
         <a class="btn btn-secondary" id="datasetLink" href="#" title="ZIP พร้อมเทรนใน notebook (train_data.csv + เสียง .wav แยกตามภาค) — เฉพาะที่อนุมัติแล้ว">🎓 Dataset เทรน (เฉพาะอนุมัติ)</a>
+        <button class="btn btn-danger" id="resetAllBtn" title="ลบทุกรายการ + ไฟล์เสียงทั้งหมด แล้วรีเซ็ตเลข id ให้เริ่มที่ 1 ใหม่ (ย้อนกลับไม่ได้)">🧨 ล้างทั้งหมด + รีเซ็ตเลข</button>
       </div>
 
       <div id="status" class="status"></div>
@@ -289,6 +292,29 @@
     }
   }
 
+  async function resetAll() {
+    // ลบทั้งหมด = ย้อนกลับไม่ได้ จึงยืนยันสองชั้น (ชั้นสองให้พิมพ์คำว่า ล้าง)
+    if (!confirm('⚠️ ลบทุกรายการ + ไฟล์เสียงทั้งหมด แล้วรีเซ็ตเลข id ให้เริ่มที่ 1 ใหม่?\nการกระทำนี้ย้อนกลับไม่ได้')) return;
+    if (prompt('ยืนยันอีกครั้ง — พิมพ์คำว่า  ล้าง  แล้วกดตกลง') !== 'ล้าง') {
+      setStatusMsg('ยกเลิกการล้างข้อมูลแล้ว');
+      return;
+    }
+    try {
+      const res = await authFetch(API_BASE + '/suggest/reset_all', { method: 'POST' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      currentStatus = '';
+      document.querySelectorAll('.filter-btn[data-status]').forEach((b) =>
+        b.classList.toggle('active', b.getAttribute('data-status') === ''));
+      await load();
+      setStatusMsg('🧹 ล้างข้อมูลทั้งหมดแล้ว (ลบ ' + data.deleted_rows + ' รายการ, '
+        + data.deleted_audio + ' ไฟล์เสียง) — รายการถัดไปจะเริ่มที่ id 1');
+    } catch (err) {
+      if (err.message === 'unauthorized') return;
+      setStatusMsg('❌ ล้างข้อมูลไม่ได้ (' + err.message + ')');
+    }
+  }
+
   document.querySelectorAll('.filter-btn[data-status]').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.filter-btn[data-status]').forEach((b) => b.classList.remove('active'));
@@ -298,6 +324,7 @@
     });
   });
   document.getElementById('refreshBtn').addEventListener('click', load);
+  document.getElementById('resetAllBtn').addEventListener('click', resetAll);
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('loginBtn').addEventListener('click', doLogin);
   loginPass.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
