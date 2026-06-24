@@ -90,7 +90,7 @@
         <table class="admin">
           <thead>
             <tr>
-              <th>#</th><th>ประโยคภาษาถิ่น</th><th>คำแปลไทยกลาง</th><th>หมวด</th>
+              <th>ประโยคภาษาถิ่น</th><th>คำแปลไทยกลาง</th><th>หมวด</th>
               <th>ภาค/จังหวัด</th><th>เสียง</th><th>สถานะ</th><th>เวลา</th><th>จัดการ</th>
             </tr>
           </thead>
@@ -199,7 +199,6 @@
     emptyEl.hidden = items.length > 0;
     items.forEach((it) => {
       const tr = document.createElement('tr');
-      tr.appendChild(cell('#' + it.id));
       tr.appendChild(cell(it.dialect_text));
       tr.appendChild(cell(it.central_text));
       tr.appendChild(cell(it.category));
