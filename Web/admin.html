@@ -11,8 +11,10 @@
   .container { max-width: 1120px; }
   .page-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .page-head h1 { font-size:26px; }
-  .user-box { display:flex; align-items:center; gap:12px; }
-  .user-box .uname { font-size:14px; color:var(--text-muted); font-weight:600; }
+  .user-box { display:flex; align-items:center; gap:10px; }
+  .user-chip { display:flex; align-items:center; gap:9px; background:var(--surface-soft); border:1px solid var(--border); border-radius:999px; padding:4px 14px 4px 4px; }
+  .user-avatar { width:30px; height:30px; border-radius:50%; background:var(--primary); color:#fff; font-weight:700; font-size:14px; display:inline-flex; align-items:center; justify-content:center; text-transform:uppercase; }
+  .user-box .uname { font-size:14px; color:var(--heading); font-weight:600; }
   .warn-banner { background:var(--warning-bg); border-left:4px solid var(--warning); padding:11px 15px; border-radius:var(--radius-sm); color:var(--warning); font-size:13px; margin-bottom:18px; }
   .login-panel { max-width:380px; margin:48px auto; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:30px; box-shadow:var(--shadow-card); }
   .login-panel h2 { margin:0 0 18px; font-size:20px; color:var(--heading); }
@@ -71,10 +73,13 @@
 <body>
   <div class="container">
     <div class="page-head">
-      <h1>🛠️ ผู้ดูแล — คำที่เสนอเข้ามา</h1>
+      <h1>🛠️ ADMIN </h1>
       <div id="userBox" class="user-box" hidden>
-        <span class="uname" id="userName"></span>
-        <button id="logoutBtn" class="btn btn-clear">🚪 ออกจากระบบ</button>
+        <div class="user-chip">
+          <span class="user-avatar" id="userAvatar">·</span>
+          <span class="uname" id="userName"></span>
+        </div>
+        <button id="logoutBtn" class="btn btn-clear btn-sm">🚪 ออกจากระบบ</button>
       </div>
     </div>
 
@@ -160,7 +165,9 @@
     loginPanel.hidden = true;
     adminContent.hidden = false;
     userBox.hidden = false;
-    userName.textContent = '👤 ' + (localStorage.getItem('adminUser') || '');
+    const u = (localStorage.getItem('adminUser') || '').trim();
+    userName.textContent = u || '—';
+    document.getElementById('userAvatar').textContent = u ? u[0] : '·';
   }
 
   async function authFetch(url, opts) {
