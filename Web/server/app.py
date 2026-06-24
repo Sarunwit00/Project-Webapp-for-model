@@ -16,6 +16,7 @@ import secrets
 import sqlite3
 import sys
 import wave
+import zipfile
 from pathlib import Path
 from typing import Optional
 
@@ -305,6 +306,45 @@ def suggest_export():
         content=buf.getvalue(),
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": "attachment; filename=suggestions.csv"},
+    )
+
+
+@app.get("/suggest/export.zip", dependencies=[Depends(require_admin)])
+def suggest_export_zip():
+    """ดาวน์โหลดทุกอย่างในไฟล์เดียว: suggestions.csv + ไฟล์เสียงทั้งหมด (โฟลเดอร์ audio/)"""
+    conn = sqlite3.connect(str(DB_PATH))
+    rows = conn.execute(
+        "SELECT id, dialect_text, central_text, category, region, province, "
+        "audio_path, status, created_at FROM suggestions ORDER BY id"
+    ).fetchall()
+    conn.close()
+
+    # สร้าง CSV (เหมือน /suggest/export.csv)
+    csv_buf = io.StringIO()
+    csv_buf.write("﻿")  # BOM ให้ Excel เปิดภาษาไทยไม่เพี้ยน
+    writer = csv.writer(csv_buf)
+    writer.writerow([
+        "id", "dialect_text", "central_text", "category",
+        "region", "province", "audio_path", "status", "created_at",
+    ])
+    writer.writerows(rows)
+
+    # ห่อ CSV + ไฟล์เสียงทุกอันไว้ใน ZIP เดียว
+    zip_buf = io.BytesIO()
+    with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("suggestions.csv", csv_buf.getvalue())
+        for row in rows:
+            audio_name = row[6]  # คอลัมน์ audio_path
+            if not audio_name:
+                continue
+            audio_file = AUDIO_DIR / audio_name
+            if audio_file.is_file():
+                zf.write(audio_file, f"audio/{audio_name}")
+
+    return Response(
+        content=zip_buf.getvalue(),
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=suggestions_export.zip"},
     )
 
 

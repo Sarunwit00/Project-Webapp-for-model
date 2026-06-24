@@ -82,6 +82,7 @@
         <span class="spacer"></span>
         <button class="filter-btn" id="refreshBtn">🔄 รีเฟรช</button>
         <a class="btn btn-secondary" id="csvLink" href="#">⬇️ ดาวน์โหลด CSV</a>
+        <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลดทั้งหมด (CSV + เสียง)</a>
       </div>
 
       <div id="status" class="status"></div>
@@ -115,6 +116,7 @@
   const emptyEl = document.getElementById('empty');
   const statusEl = document.getElementById('status');
   const csvLink = document.getElementById('csvLink');
+  const zipLink = document.getElementById('zipLink');
   const userBox = document.getElementById('userBox');
   const userName = document.getElementById('userName');
 
@@ -248,6 +250,7 @@
       showContent();
       render(data);
       csvLink.href = API_BASE + '/suggest/export.csv?token=' + encodeURIComponent(token());
+      zipLink.href = API_BASE + '/suggest/export.zip?token=' + encodeURIComponent(token());
       setStatusMsg('');
     } catch (err) {
       if (err.message === 'unauthorized') return;
