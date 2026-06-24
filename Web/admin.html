@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>ผู้ดูแล — คำที่เสนอเข้ามา</title>
-<link rel="stylesheet" href="style.css?v=12" />
+<link rel="stylesheet" href="style.css?v=13" />
 <style>
   [hidden] { display: none !important; }
   .container { max-width: 1120px; }
@@ -29,11 +29,19 @@
   .metric.pending .value { color:var(--warning); }
   .metric.approved .value { color:var(--success); }
   .metric.rejected .value { color:var(--danger); }
-  .admin-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; }
-  .admin-bar .spacer { margin-left:auto; }
-  .filter-btn { padding:8px 16px; border-radius:999px; border:1px solid var(--border-strong); background:var(--surface); cursor:pointer; font-family:inherit; font-size:14px; color:var(--text); transition:all .15s ease; }
-  .filter-btn:hover { border-color:var(--primary); color:var(--primary-hover); }
-  .filter-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .admin-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:14px; }
+  .spacer { margin-left:auto; }
+  /* กลุ่มปุ่มกรอง = segmented control (pills ติดกันในกรอบเดียว) */
+  .filter-group { display:inline-flex; flex-wrap:wrap; gap:4px; background:var(--surface-softer); border:1px solid var(--border); border-radius:999px; padding:4px; }
+  .filter-btn { padding:8px 16px; border-radius:999px; border:none; background:transparent; cursor:pointer; font-family:inherit; font-size:14px; color:var(--text-muted); transition:all .15s ease; white-space:nowrap; }
+  .filter-btn:hover { color:var(--primary-hover); background:var(--surface); }
+  .filter-btn.active { background:var(--primary); color:#fff; box-shadow:0 2px 6px rgba(99,102,241,.30); }
+  /* ปุ่มไอคอนกลม (รีเฟรช) */
+  .icon-action { width:40px; height:40px; flex:0 0 auto; border-radius:50%; border:1px solid var(--border-strong); background:var(--surface); color:var(--text-muted); font-size:16px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:all .15s ease; }
+  .icon-action:hover { border-color:var(--primary); background:var(--primary-50); color:var(--primary-hover); }
+  /* แผงปุ่มแอ็กชัน (ดาวน์โหลด + ล้างข้อมูล) แยกออกจากปุ่มกรอง */
+  .action-bar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; padding:12px 14px; background:var(--surface-soft); border:1px solid var(--border); border-radius:var(--radius-md); }
+  .action-label { font-size:13px; font-weight:700; color:var(--text-muted); margin-right:2px; }
   .btn-danger { background:var(--danger); color:#fff; border:1px solid var(--danger); }
   .btn-danger:hover { filter:brightness(0.92); transform:translateY(-1px); }
   .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
@@ -86,16 +94,22 @@
       </div>
 
       <div class="admin-bar">
-        <button class="filter-btn active" data-status="">ทั้งหมด</button>
-        <button class="filter-btn" data-status="pending">รออนุมัติ</button>
-        <button class="filter-btn" data-status="approved">อนุมัติแล้ว</button>
-        <button class="filter-btn" data-status="rejected">ปฏิเสธ</button>
+        <div class="filter-group" role="group" aria-label="กรองตามสถานะ">
+          <button class="filter-btn active" data-status="">ทั้งหมด</button>
+          <button class="filter-btn" data-status="pending">รออนุมัติ</button>
+          <button class="filter-btn" data-status="approved">อนุมัติแล้ว</button>
+          <button class="filter-btn" data-status="rejected">ปฏิเสธ</button>
+        </div>
+        <button class="icon-action" id="refreshBtn" title="รีเฟรชรายการ" aria-label="รีเฟรชรายการ">🔄</button>
+      </div>
+
+      <div class="action-bar">
+        <span class="action-label">⬇️ ดาวน์โหลด</span>
+        <a class="btn btn-secondary btn-sm" id="csvLink" href="#" title="เฉพาะตาราง CSV ตามตัวกรองที่เลือก">CSV</a>
+        <a class="btn btn-secondary btn-sm" id="zipLink" href="#" title="CSV + ไฟล์เสียงทั้งหมด (ตามตัวกรอง)">CSV + เสียง</a>
+        <a class="btn btn-secondary btn-sm" id="datasetLink" href="#" title="ZIP พร้อมเทรนใน notebook (train_data.csv + เสียง .wav แยกตามภาค) — เฉพาะที่อนุมัติแล้ว">🎓 Dataset เทรน</a>
         <span class="spacer"></span>
-        <button class="filter-btn" id="refreshBtn">🔄 รีเฟรช</button>
-        <a class="btn btn-secondary" id="csvLink" href="#">⬇️ ดาวน์โหลด CSV</a>
-        <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลด CSV + เสียง</a>
-        <a class="btn btn-secondary" id="datasetLink" href="#" title="ZIP พร้อมเทรนใน notebook (train_data.csv + เสียง .wav แยกตามภาค) — เฉพาะที่อนุมัติแล้ว">🎓 Dataset เทรน (เฉพาะอนุมัติ)</a>
-        <button class="btn btn-danger" id="resetAllBtn" title="ลบทุกรายการ + ไฟล์เสียงทั้งหมด แล้วรีเซ็ตเลข id ให้เริ่มที่ 1 ใหม่ (ย้อนกลับไม่ได้)">🧨 ล้างทั้งหมด + รีเซ็ตเลข</button>
+        <button class="btn btn-danger btn-sm" id="resetAllBtn" title="ลบทุกรายการ + ไฟล์เสียงทั้งหมด แล้วรีเซ็ตเลข id ให้เริ่มที่ 1 ใหม่ (ย้อนกลับไม่ได้)">🧨 ล้างทั้งหมด</button>
       </div>
 
       <div id="status" class="status"></div>

@@ -122,17 +122,27 @@ p.subtitle {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 12px 24px;
   border-radius: 999px;
   border: none;
   font-size: 16px;
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   font-family: inherit;
 }
 .btn:active { transform: translateY(0) scale(0.98); }
+/* ปุ่มขนาดเล็ก สำหรับแถบเครื่องมือที่มีหลายปุ่ม */
+.btn-sm { padding: 8px 15px; font-size: 14px; }
+/* วงแหวนโฟกัสสำหรับผู้ใช้คีย์บอร์ด (ใช้งานง่ายขึ้น/เข้าถึงได้) */
+.btn:focus-visible,
+.filter-btn:focus-visible,
+.icon-btn:focus-visible,
+.icon-action:focus-visible,
+.mini-btn:focus-visible { outline: none; box-shadow: var(--ring); }
 .btn-record {
   background: var(--record);
   color: #fff;
