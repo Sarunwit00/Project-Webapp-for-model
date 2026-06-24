@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>ผู้ดูแล — คำที่เสนอเข้ามา</title>
-<link rel="stylesheet" href="style.css?v=13" />
+<link rel="stylesheet" href="style.css?v=14" />
 <style>
   [hidden] { display: none !important; }
   .container { max-width: 1120px; }
@@ -42,6 +42,9 @@
   /* แผงปุ่มแอ็กชัน (ดาวน์โหลด + ล้างข้อมูล) แยกออกจากปุ่มกรอง */
   .action-bar { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px; padding:12px 14px; background:var(--surface-soft); border:1px solid var(--border); border-radius:var(--radius-md); }
   .action-label { font-size:13px; font-weight:700; color:var(--text-muted); margin-right:2px; }
+  /* ปุ่มดาวน์โหลด = ชิปม่วงอ่อน ดูเป็นปุ่มชัด ไม่เหมือนลิงก์ */
+  .action-bar .btn-secondary { background:var(--primary-50); border-color:var(--primary-100); color:var(--primary-deep); }
+  .action-bar .btn-secondary:hover { background:var(--primary-100); border-color:var(--primary); color:var(--primary-deep); transform:translateY(-1px); }
   .btn-danger { background:var(--danger); color:#fff; border:1px solid var(--danger); }
   .btn-danger:hover { filter:brightness(0.92); transform:translateY(-1px); }
   .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
@@ -105,8 +108,8 @@
 
       <div class="action-bar">
         <span class="action-label">⬇️ ดาวน์โหลด</span>
-        <a class="btn btn-secondary btn-sm" id="csvLink" href="#" title="เฉพาะตาราง CSV ตามตัวกรองที่เลือก">CSV</a>
-        <a class="btn btn-secondary btn-sm" id="zipLink" href="#" title="CSV + ไฟล์เสียงทั้งหมด (ตามตัวกรอง)">CSV + เสียง</a>
+        <a class="btn btn-secondary btn-sm" id="csvLink" href="#" title="เฉพาะตาราง CSV ตามตัวกรองที่เลือก">📄 CSV</a>
+        <a class="btn btn-secondary btn-sm" id="zipLink" href="#" title="CSV + ไฟล์เสียงทั้งหมด (ตามตัวกรอง)">📦 CSV + เสียง</a>
         <a class="btn btn-secondary btn-sm" id="datasetLink" href="#" title="ZIP พร้อมเทรนใน notebook (train_data.csv + เสียง .wav แยกตามภาค) — เฉพาะที่อนุมัติแล้ว">🎓 Dataset เทรน</a>
         <span class="spacer"></span>
         <button class="btn btn-danger btn-sm" id="resetAllBtn" title="ลบทุกรายการ + ไฟล์เสียงทั้งหมด แล้วรีเซ็ตเลข id ให้เริ่มที่ 1 ใหม่ (ย้อนกลับไม่ได้)">🧨 ล้างทั้งหมด</button>
