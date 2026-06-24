@@ -10,7 +10,6 @@
   [hidden] { display: none !important; }
   .container { max-width: 1100px; }
   .page-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .head-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .user-box { display:flex; align-items:center; gap:12px; }
   .user-box .uname { font-size:14px; color:#5f6368; font-weight:600; }
   .warn-banner { background:#fff8e1; border-left:4px solid #f9ab00; padding:10px 14px; border-radius:6px; color:#7a5b00; font-size:13px; margin-bottom:16px; }
@@ -51,12 +50,9 @@
   <div class="container">
     <div class="page-head">
       <h1>🛠️ ผู้ดูแล — คำที่เสนอเข้ามา</h1>
-      <div class="head-actions">
-        <a class="btn btn-clear" href="index.html">← กลับหน้าหลัก</a>
-        <div id="userBox" class="user-box" hidden>
-          <span class="uname" id="userName"></span>
-          <button id="logoutBtn" class="btn btn-clear">🚪 ออกจากระบบ</button>
-        </div>
+      <div id="userBox" class="user-box" hidden>
+        <span class="uname" id="userName"></span>
+        <button id="logoutBtn" class="btn btn-clear">🚪 ออกจากระบบ</button>
       </div>
     </div>
 
@@ -298,17 +294,44 @@
   document.getElementById('loginBtn').addEventListener('click', doLogin);
   loginPass.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 
-  // ออกจากระบบทันทีเมื่อ "ออกจากหน้านี้" — ไม่ว่าจะกดปุ่ม "← กลับหน้าหลัก",
-  // กดปุ่มย้อนกลับ/เดินหน้าของเบราว์เซอร์ ปิดแท็บ หรือรีเฟรชก็ตาม จะต้องล็อกอินใหม่เสมอ
+  // ออกจากระบบเมื่อ "ออกจากหน้านี้จริง ๆ" — กดย้อนกลับ/เดินหน้าของเบราว์เซอร์ ไปหน้าอื่น หรือปิดแท็บ
+  // แต่ "การรีโหลดหน้าเดิม (F5)" ต้องยังอยู่ในระบบ จึงพักโทเคนไว้ใน sessionStorage ชั่วคราวก่อน
+  // แล้วค่อยกู้คืนถ้าโหลดรอบใหม่เป็นการรีโหลด (ดูบล็อก restoreOnReload ด้านล่าง)
   // (การดาวน์โหลด CSV เป็นไฟล์แนบ ไม่นับเป็นการออกจากหน้า จึงไม่ล็อกเอาต์)
   window.addEventListener('pagehide', () => {
+    const t = localStorage.getItem('adminToken');
+    if (t) {
+      sessionStorage.setItem('adminTokenTmp', t);
+      const u = localStorage.getItem('adminUser');
+      if (u) sessionStorage.setItem('adminUserTmp', u);
+    }
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
   });
-  // ถ้าเบราว์เซอร์คืนหน้านี้จาก bfcache (กดเดินหน้ากลับเข้ามา) โทเคนถูกล้างไปแล้ว → บังคับหน้า login
+  // ถ้าเบราว์เซอร์คืนหน้านี้จาก bfcache (กดเดินหน้ากลับเข้ามา) โทเคนถูกล้างไปแล้ว → ทิ้งของชั่วคราว + บังคับหน้า login
   window.addEventListener('pageshow', (e) => {
-    if (e.persisted && !token()) showLogin();
+    if (e.persisted && !token()) {
+      sessionStorage.removeItem('adminTokenTmp');
+      sessionStorage.removeItem('adminUserTmp');
+      showLogin();
+    }
   });
+
+  // กู้โทเคนคืนเฉพาะเมื่อรอบโหลดนี้เป็น "การรีโหลด" หน้าเดิม (F5) เท่านั้น
+  // กรณีอื่น (เปิดใหม่ / กดย้อนกลับ-เดินหน้า) ให้ทิ้งโทเคนชั่วคราว → บังคับให้ล็อกอินใหม่
+  (function restoreOnReload() {
+    const nav = performance.getEntriesByType('navigation')[0];
+    const isReload = nav ? nav.type === 'reload'
+                         : (performance.navigation && performance.navigation.type === 1);
+    const t = sessionStorage.getItem('adminTokenTmp');
+    if (isReload && t) {
+      localStorage.setItem('adminToken', t);
+      const u = sessionStorage.getItem('adminUserTmp');
+      if (u) localStorage.setItem('adminUser', u);
+    }
+    sessionStorage.removeItem('adminTokenTmp');
+    sessionStorage.removeItem('adminUserTmp');
+  })();
 
   // เริ่มต้น: เริ่มที่หน้า login เสมอ (ซ่อนปุ่ม logout) แล้วค่อยลองโหลดถ้ามีโทเคน
   // ปุ่ม logout + เนื้อหาจะโผล่ก็ต่อเมื่อโหลดรายการสำเร็จ (token ใช้ได้จริง) เท่านั้น
