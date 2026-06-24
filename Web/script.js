@@ -515,9 +515,10 @@
       fd.append('category', suggestCategory.value);
       fd.append('region', suggestRegion.value);
       fd.append('province', suggestProvince.value);
-      if (suggestAudioBlob) {
-        fd.append('audio', suggestAudioBlob, suggestAudioFilename);
-      }
+      // แปลงเป็น WAV 16kHz mono ก่อนส่ง — datasets.Audio (notebook fine-tune) อ่าน webm/opus ไม่ได้
+      // เก็บเป็น .wav ตั้งแต่ตอนส่ง ข้อมูลจะพร้อมเอาไปเทรนต่อได้ทันที
+      const wavBlob = await blobToWav16k(suggestAudioBlob);
+      fd.append('audio', wavBlob, 'sample.wav');
       const res = await fetch(API_BASE + '/suggest', { method: 'POST', body: fd });
       if (!res.ok) {
         let msg = 'ส่งไม่สำเร็จ (' + res.status + ')';

@@ -356,6 +356,49 @@ def suggest_export_zip(status: str = ""):
     )
 
 
+# map ภาค (ค่าไทยจากหน้าเว็บ) -> โฟลเดอร์/ป้ายที่ notebook fine-tuning ใช้
+REGION_TO_DIR = {"เหนือ": "north", "อีสาน": "isan", "ใต้": "south"}
+
+
+@app.get("/suggest/export_dataset.zip", dependencies=[Depends(require_admin)])
+def suggest_export_dataset():
+    """ดาวน์โหลด dataset พร้อมเทรน (เฉพาะรายการที่ 'อนุมัติแล้ว') ให้ตรงกับ notebook fine-tuning:
+    - train_data.csv  (คอลัมน์: path, sentence, region)  *ไม่มี BOM* เพราะ pandas/datasets จะอ่านชื่อคอลัมน์เพี้ยน
+    - ไฟล์เสียง .wav แยกโฟลเดอร์ตามภาค: north/ isan/ south/
+    โครงสร้าง zip ตรงกับที่ notebook คาดหวัง (ZIP_PATH) — อัปขึ้น Drive แล้วเทรนต่อได้เลย
+    """
+    conn = sqlite3.connect(str(DB_PATH))
+    rows = conn.execute(
+        "SELECT id, central_text, region, audio_path FROM suggestions "
+        "WHERE status = 'approved' ORDER BY id"
+    ).fetchall()
+    conn.close()
+
+    csv_buf = io.StringIO()
+    writer = csv.writer(csv_buf)
+    writer.writerow(["path", "sentence", "region"])
+
+    zip_buf = io.BytesIO()
+    with zipfile.ZipFile(zip_buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        for _sid, central_text, region, audio_name in rows:
+            region_dir = REGION_TO_DIR.get((region or "").strip())
+            if not region_dir or not audio_name:
+                continue  # ข้ามภาคที่ไม่รองรับ หรือไม่มีไฟล์เสียง
+            audio_file = AUDIO_DIR / audio_name
+            if not audio_file.is_file():
+                continue  # ข้ามรายการที่ไฟล์เสียงหาย
+            arc = f"{region_dir}/{audio_name}"
+            zf.write(audio_file, arc)
+            writer.writerow([arc, central_text, region_dir])
+        zf.writestr("train_data.csv", csv_buf.getvalue())
+
+    return Response(
+        content=zip_buf.getvalue(),
+        media_type="application/zip",
+        headers={"Content-Disposition": "attachment; filename=sound_data.zip"},
+    )
+
+
 # ---------------------------------------------------------------------------
 # จัดการรายการที่เสนอเข้ามา (สำหรับหน้า admin)
 # ---------------------------------------------------------------------------

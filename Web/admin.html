@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>ผู้ดูแล — คำที่เสนอเข้ามา</title>
-<link rel="stylesheet" href="style.css?v=10" />
+<link rel="stylesheet" href="style.css?v=11" />
 <style>
   [hidden] { display: none !important; }
   .container { max-width: 1100px; }
@@ -83,6 +83,7 @@
         <button class="filter-btn" id="refreshBtn">🔄 รีเฟรช</button>
         <a class="btn btn-secondary" id="csvLink" href="#">⬇️ ดาวน์โหลด CSV</a>
         <a class="btn btn-primary" id="zipLink" href="#">📦 ดาวน์โหลด CSV + เสียง</a>
+        <a class="btn btn-secondary" id="datasetLink" href="#" title="ZIP พร้อมเทรนใน notebook (train_data.csv + เสียง .wav แยกตามภาค) — เฉพาะที่อนุมัติแล้ว">🎓 Dataset เทรน (เฉพาะอนุมัติ)</a>
       </div>
 
       <div id="status" class="status"></div>
@@ -117,6 +118,7 @@
   const statusEl = document.getElementById('status');
   const csvLink = document.getElementById('csvLink');
   const zipLink = document.getElementById('zipLink');
+  const datasetLink = document.getElementById('datasetLink');
   const userBox = document.getElementById('userBox');
   const userName = document.getElementById('userName');
 
@@ -253,6 +255,8 @@
       const statusQS = currentStatus ? ('&status=' + encodeURIComponent(currentStatus)) : '';
       csvLink.href = API_BASE + '/suggest/export.csv?token=' + encodeURIComponent(token()) + statusQS;
       zipLink.href = API_BASE + '/suggest/export.zip?token=' + encodeURIComponent(token()) + statusQS;
+      // Dataset เทรน = เฉพาะที่อนุมัติแล้วเสมอ ไม่ผูกกับตัวกรองที่เลือก
+      datasetLink.href = API_BASE + '/suggest/export_dataset.zip?token=' + encodeURIComponent(token());
       setStatusMsg('');
     } catch (err) {
       if (err.message === 'unauthorized') return;
