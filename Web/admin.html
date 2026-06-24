@@ -298,6 +298,18 @@
   document.getElementById('loginBtn').addEventListener('click', doLogin);
   loginPass.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
 
+  // ออกจากระบบทันทีเมื่อ "ออกจากหน้านี้" — ไม่ว่าจะกดปุ่ม "← กลับหน้าหลัก",
+  // กดปุ่มย้อนกลับ/เดินหน้าของเบราว์เซอร์ ปิดแท็บ หรือรีเฟรชก็ตาม จะต้องล็อกอินใหม่เสมอ
+  // (การดาวน์โหลด CSV เป็นไฟล์แนบ ไม่นับเป็นการออกจากหน้า จึงไม่ล็อกเอาต์)
+  window.addEventListener('pagehide', () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+  });
+  // ถ้าเบราว์เซอร์คืนหน้านี้จาก bfcache (กดเดินหน้ากลับเข้ามา) โทเคนถูกล้างไปแล้ว → บังคับหน้า login
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted && !token()) showLogin();
+  });
+
   // เริ่มต้น: เริ่มที่หน้า login เสมอ (ซ่อนปุ่ม logout) แล้วค่อยลองโหลดถ้ามีโทเคน
   // ปุ่ม logout + เนื้อหาจะโผล่ก็ต่อเมื่อโหลดรายการสำเร็จ (token ใช้ได้จริง) เท่านั้น
   showLogin();
