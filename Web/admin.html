@@ -5,47 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <title>ผู้ดูแล — คำที่เสนอเข้ามา</title>
-<link rel="stylesheet" href="style.css?v=11" />
+<link rel="stylesheet" href="style.css?v=12" />
 <style>
   [hidden] { display: none !important; }
-  .container { max-width: 1100px; }
+  .container { max-width: 1120px; }
   .page-head { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .page-head h1 { font-size:26px; }
   .user-box { display:flex; align-items:center; gap:12px; }
-  .user-box .uname { font-size:14px; color:#5f6368; font-weight:600; }
-  .warn-banner { background:#fff8e1; border-left:4px solid #f9ab00; padding:10px 14px; border-radius:6px; color:#7a5b00; font-size:13px; margin-bottom:16px; }
-  .login-panel { max-width:360px; margin:40px auto; background:#fafbfd; border:1px solid #e3e8ee; border-radius:12px; padding:28px; }
-  .login-panel h2 { margin:0 0 18px; font-size:20px; color:#34495e; }
-  .login-panel input { width:100%; padding:11px 12px; margin-bottom:12px; border:1px solid #dadce0; border-radius:8px; font-size:15px; font-family:inherit; }
-  .login-panel input:focus { outline:none; border-color:#1a73e8; box-shadow:0 0 0 3px rgba(26,115,232,0.15); }
+  .user-box .uname { font-size:14px; color:var(--text-muted); font-weight:600; }
+  .warn-banner { background:var(--warning-bg); border-left:4px solid var(--warning); padding:11px 15px; border-radius:var(--radius-sm); color:var(--warning); font-size:13px; margin-bottom:18px; }
+  .login-panel { max-width:380px; margin:48px auto; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:30px; box-shadow:var(--shadow-card); }
+  .login-panel h2 { margin:0 0 18px; font-size:20px; color:var(--heading); }
+  .login-panel input { width:100%; padding:12px 13px; margin-bottom:12px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); font-size:15px; font-family:inherit; color:var(--text); }
+  .login-panel input:focus { outline:none; border-color:var(--primary); box-shadow:var(--ring); }
   .login-panel .btn { width:100%; justify-content:center; }
-  .login-err { color:#d93025; font-size:14px; margin:10px 0 0; }
-  .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
-  .metric { background:#f1f3f4; border-radius:10px; padding:14px 16px; }
-  .metric .label { font-size:13px; color:#5f6368; }
-  .metric .value { font-size:26px; font-weight:700; color:#202124; }
-  .admin-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+  .login-err { color:var(--danger); font-size:14px; margin:10px 0 0; }
+  .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px; }
+  .metric { background:var(--surface-soft); border:1px solid var(--border); border-radius:var(--radius-md); padding:16px 18px; }
+  .metric .label { font-size:13px; color:var(--text-muted); }
+  .metric .value { font-size:28px; font-weight:800; color:var(--heading); margin-top:2px; }
+  .metric.total { background:var(--primary-50); border-color:var(--primary-100); }
+  .metric.total .value { color:var(--primary-deep); }
+  .metric.pending .value { color:var(--warning); }
+  .metric.approved .value { color:var(--success); }
+  .metric.rejected .value { color:var(--danger); }
+  .admin-bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px; }
   .admin-bar .spacer { margin-left:auto; }
-  .filter-btn { padding:8px 16px; border-radius:999px; border:1px solid #dadce0; background:#fff; cursor:pointer; font-family:inherit; font-size:14px; color:#3c4043; }
-  .filter-btn.active { background:#1a73e8; color:#fff; border-color:#1a73e8; }
-  .btn-danger { background:#c5221f; color:#fff; border:1px solid #c5221f; }
-  .btn-danger:hover { background:#a01813; border-color:#a01813; }
-  .table-wrap { overflow-x:auto; }
+  .filter-btn { padding:8px 16px; border-radius:999px; border:1px solid var(--border-strong); background:var(--surface); cursor:pointer; font-family:inherit; font-size:14px; color:var(--text); transition:all .15s ease; }
+  .filter-btn:hover { border-color:var(--primary); color:var(--primary-hover); }
+  .filter-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .btn-danger { background:var(--danger); color:#fff; border:1px solid var(--danger); }
+  .btn-danger:hover { filter:brightness(0.92); transform:translateY(-1px); }
+  .table-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
   table.admin { width:100%; border-collapse:collapse; font-size:14px; }
-  table.admin th, table.admin td { padding:10px; border-bottom:1px solid #e3e8ee; text-align:left; vertical-align:top; }
-  table.admin th { background:#f8f9fb; font-weight:600; color:#34495e; white-space:nowrap; }
+  table.admin th, table.admin td { padding:11px 12px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+  table.admin tbody tr:last-child td { border-bottom:none; }
+  table.admin tbody tr:hover { background:var(--surface-soft); }
+  table.admin th { background:var(--surface-softer); font-weight:700; color:var(--heading); white-space:nowrap; }
   table.admin audio { width:190px; height:34px; }
-  .pill { display:inline-block; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
-  .pill.pending { background:#fff8e1; color:#9a6700; }
-  .pill.approved { background:#e6f4ea; color:#137333; }
-  .pill.rejected { background:#fce8e6; color:#c5221f; }
+  .pill { display:inline-block; padding:3px 11px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .pill.pending { background:var(--warning-bg); color:var(--warning); }
+  .pill.approved { background:var(--success-bg); color:var(--success); }
+  .pill.rejected { background:var(--danger-bg); color:var(--danger); }
   .row-actions { display:flex; gap:6px; flex-wrap:wrap; }
-  .mini-btn { padding:6px 10px; border-radius:8px; border:1px solid #dadce0; background:#fff; cursor:pointer; font-family:inherit; font-size:13px; }
-  .mini-btn.approve { color:#137333; border-color:#a8d5b5; }
-  .mini-btn.reject { color:#9a6700; border-color:#f5d98a; }
-  .mini-btn.del { color:#c5221f; border-color:#f3b6b1; }
-  .mini-btn:hover { background:#f8f9fb; }
-  .time { white-space:nowrap; color:#5f6368; font-size:13px; }
-  .empty { text-align:center; color:#5f6368; padding:30px; }
+  .mini-btn { padding:6px 11px; border-radius:8px; border:1px solid var(--border-strong); background:var(--surface); cursor:pointer; font-family:inherit; font-size:13px; transition:all .15s ease; }
+  .mini-btn.approve { color:var(--success); border-color:#a9e0c8; }
+  .mini-btn.reject { color:var(--warning); border-color:#f0d39a; }
+  .mini-btn.del { color:var(--danger); border-color:#f2bcbc; }
+  .mini-btn:hover { transform:translateY(-1px); background:var(--surface-soft); }
+  .time { white-space:nowrap; color:var(--text-muted); font-size:13px; }
+  .empty { text-align:center; color:var(--text-muted); padding:32px; }
 </style>
 </head>
 <body>
@@ -70,10 +79,10 @@
       <div class="warn-banner">⚠️ หน้านี้ลบข้อมูลได้ — อย่าแชร์ชื่อผู้ใช้/รหัสผ่านให้คนอื่น</div>
 
       <div class="metrics">
-        <div class="metric"><div class="label">ทั้งหมด</div><div class="value" id="mTotal">–</div></div>
-        <div class="metric"><div class="label">รออนุมัติ</div><div class="value" id="mPending">–</div></div>
-        <div class="metric"><div class="label">อนุมัติแล้ว</div><div class="value" id="mApproved">–</div></div>
-        <div class="metric"><div class="label">ปฏิเสธ</div><div class="value" id="mRejected">–</div></div>
+        <div class="metric total"><div class="label">ทั้งหมด</div><div class="value" id="mTotal">–</div></div>
+        <div class="metric pending"><div class="label">รออนุมัติ</div><div class="value" id="mPending">–</div></div>
+        <div class="metric approved"><div class="label">อนุมัติแล้ว</div><div class="value" id="mApproved">–</div></div>
+        <div class="metric rejected"><div class="label">ปฏิเสธ</div><div class="value" id="mRejected">–</div></div>
       </div>
 
       <div class="admin-bar">
