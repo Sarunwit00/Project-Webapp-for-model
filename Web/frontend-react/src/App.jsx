@@ -3,6 +3,7 @@ import { transcribe } from './lib/api.js'
 import RecordSection from './components/RecordSection.jsx'
 import UploadSection from './components/UploadSection.jsx'
 import OutputSection from './components/OutputSection.jsx'
+import SuggestSection from './components/SuggestSection.jsx'
 
 export default function App() {
   const [output, setOutput] = useState('')
@@ -73,6 +74,8 @@ export default function App() {
           stopSpeakRef.current = fn
         }}
       />
+
+      <SuggestSection />
     </div>
   )
 }
