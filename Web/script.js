@@ -137,7 +137,11 @@
     try {
       const data = await transcribe(blob);
       const text = data.text || '';
-      if (text) {
+      if (data.unreliable) {
+        // โมเดลพ่นข้อความออกมาก็จริง แต่เป็นตัวอักษรซ้ำ ๆ (เสียงไม่ตรงกับที่เทรน) -> แปลไม่ได้
+        showOutputError('❌ ไม่สามารถแปลได้ — เสียงไม่ตรงกับที่โมเดลเรียนรู้');
+        setStatus('⚠️ เสียงนี้แปลไม่ได้ — ลองพูดชัด ๆ/ใกล้ไมค์ หรือเช็กว่าเป็นคำที่เทรนไว้');
+      } else if (text) {
         textOutput.value = text;
         setStatus('✅ ถอดเสียงเสร็จแล้ว');
       } else if ((data.peak || 0) < 0.01) {

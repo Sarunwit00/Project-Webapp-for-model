@@ -46,6 +46,13 @@ MODEL_DIR = Path(os.environ.get("MODEL_DIR", DEFAULT_MODEL_DIR))
 
 TARGET_SR = 16000  # โมเดลต้องการ 16kHz
 
+# โมเดล CTC ตัวนี้เวลาเจอเสียงมั่ว/นอกสิ่งที่เทรน จะพ่นตัวอักษร "ตัวเดียวซ้ำ ๆ"
+# (เช่น 'ญญญ') ได้ distinct=0–1 ส่วนเสียงพูดจริงมีตัวอักษรหลากหลาย (วัดได้ >=7)
+# จึงใช้ "จำนวนตัวอักษรไม่ซ้ำ" เป็นเกณฑ์ว่าแปลได้จริงไหม — เชื่อถือได้กว่า confidence
+# ที่คาบเกี่ยวกันมาก (noise ได้ conf สูงถึง ~0.8). ถ้ามีน้อยกว่านี้ = แปลไม่ได้
+# ปรับได้ด้วย env var MIN_DISTINCT_CHARS. ดูค่าจริงได้จาก log [transcribe]
+MIN_DISTINCT_CHARS = int(os.environ.get("MIN_DISTINCT_CHARS", "2"))
+
 # ---------------------------------------------------------------------------
 # โหลดโมเดล (ครั้งเดียวตอนเริ่ม)
 # ---------------------------------------------------------------------------
@@ -110,14 +117,26 @@ def read_wav(raw: bytes):
 
 
 @torch.no_grad()
-def transcribe_audio(audio: np.ndarray) -> str:
+def transcribe_audio(audio: np.ndarray) -> tuple[str, float]:
+    """คืน (ข้อความ, ความมั่นใจ 0–1). ความมั่นใจ = ค่าเฉลี่ยความน่าจะเป็นสูงสุด
+    ต่อเฟรม เฉพาะเฟรมที่โมเดลปล่อยตัวอักษรจริง (ไม่นับ blank ของ CTC)."""
     if audio.size == 0:
-        return ""
+        return "", 0.0
     inputs = processor(audio, sampling_rate=TARGET_SR, return_tensors="pt")
     input_values = inputs.input_values.to(device)
-    logits = model(input_values).logits
-    pred_ids = torch.argmax(logits, dim=-1)
-    return processor.batch_decode(pred_ids)[0].strip()
+    logits = model(input_values).logits              # (1, T, V)
+    probs = torch.softmax(logits, dim=-1)
+    pred_ids = torch.argmax(logits, dim=-1)           # (1, T)
+    text = processor.batch_decode(pred_ids)[0].strip()
+
+    max_probs = probs.max(dim=-1).values[0]           # (T,) ความมั่นใจต่อเฟรม
+    blank_id = model.config.pad_token_id              # CTC blank ของ Wav2Vec2
+    if blank_id is not None:
+        keep = pred_ids[0] != blank_id
+    else:
+        keep = torch.ones_like(pred_ids[0], dtype=torch.bool)
+    conf = float(max_probs[keep].mean()) if bool(keep.any()) else 0.0
+    return text, conf
 
 
 @app.get("/health")
@@ -142,9 +161,18 @@ async def transcribe(file: UploadFile = File(...)):
     rms = float(np.sqrt(np.mean(audio ** 2))) if audio.size else 0.0
     print(f"[transcribe] {file.filename}: {dur:.2f}s samples={audio.size} peak={peak:.4f} rms={rms:.4f}")
 
-    text = transcribe_audio(audio)
-    print(f"[transcribe] -> {text!r}")
-    return {"text": text, "seconds": round(dur, 2), "peak": round(peak, 4)}
+    text, conf = transcribe_audio(audio)
+    distinct = len(set(text.replace(" ", "")))       # จำนวนตัวอักษรไม่ซ้ำ
+    unreliable = bool(text) and distinct < MIN_DISTINCT_CHARS
+    print(f"[transcribe] -> {text!r} conf={conf:.3f} distinct={distinct} unreliable={unreliable}")
+    return {
+        "text": text,
+        "seconds": round(dur, 2),
+        "peak": round(peak, 4),
+        "confidence": round(conf, 3),
+        "distinct": distinct,
+        "unreliable": unreliable,
+    }
 
 
 # ---------------------------------------------------------------------------
