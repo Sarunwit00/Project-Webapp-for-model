@@ -131,6 +131,7 @@
     busy = true;
     transcribeFileBtn.disabled = true;
     clearOutputError();
+    stopSpeaking(); // หยุดอ่านออกเสียงผลเก่า ก่อนถอดไฟล์ใหม่
     textOutput.value = ''; // ล้างผลถอดครั้งก่อน — แสดงเฉพาะข้อความของไฟล์ล่าสุด
     setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
     try {
@@ -338,10 +339,54 @@
 
   // ===== ล้างข้อความ =====
   clearBtn.addEventListener('click', () => {
+    stopSpeaking();
     textOutput.value = '';
     clearOutputError();
     textOutput.focus();
   });
+
+  // ===== อ่านออกเสียงข้อความ (Text-to-Speech ในเบราว์เซอร์) =====
+  const speakBtn = document.getElementById('speakBtn');
+  const synth = window.speechSynthesis;
+
+  // เลือกเสียงพากย์ภาษาไทยที่เบราว์เซอร์มี (ถ้ามี)
+  function pickThaiVoice() {
+    const voices = synth ? synth.getVoices() : [];
+    return voices.find((v) => (v.lang || '').toLowerCase().startsWith('th')) || null;
+  }
+
+  function resetSpeakBtn() {
+    if (!speakBtn) return;
+    speakBtn.classList.remove('speaking');
+    speakBtn.textContent = '🔊 อ่านออกเสียง';
+  }
+
+  // หยุดการอ่าน + คืนปุ่มสู่สถานะปกติ (ใช้ตอนกดหยุด/ล้าง/ถอดไฟล์ใหม่)
+  function stopSpeaking() {
+    if (synth && synth.speaking) synth.cancel();
+    resetSpeakBtn();
+  }
+
+  if (!synth || typeof SpeechSynthesisUtterance === 'undefined') {
+    // เบราว์เซอร์ไม่รองรับการอ่านออกเสียง -> ซ่อนปุ่มไป
+    if (speakBtn) speakBtn.hidden = true;
+  } else if (speakBtn) {
+    synth.getVoices(); // วอร์มรายชื่อเสียงไว้ก่อน (บางเบราว์เซอร์โหลดแบบ async)
+    speakBtn.addEventListener('click', () => {
+      if (synth.speaking) { stopSpeaking(); return; } // กดซ้ำระหว่างอ่าน = หยุด
+      const text = textOutput.value.trim();
+      if (!text) return;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'th-TH';
+      const voice = pickThaiVoice();
+      if (voice) utter.voice = voice;
+      utter.onend = resetSpeakBtn;
+      utter.onerror = resetSpeakBtn;
+      speakBtn.classList.add('speaking');
+      speakBtn.textContent = '⏹ หยุดอ่าน';
+      synth.speak(utter);
+    });
+  }
 
   // ===== เสนอคำศัพท์ใหม่ =====
   const suggestDialect = document.getElementById('suggestDialect');

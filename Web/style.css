@@ -168,6 +168,8 @@ p.subtitle {
   border: 1px solid var(--primary-100);
 }
 .btn-secondary:hover { background: var(--primary-50); border-color: var(--primary); }
+/* ระหว่างกำลังอ่านออกเสียง ให้ปุ่มเป็นสีทึบ เห็นชัดว่ากำลังทำงาน */
+.btn-secondary.speaking { background: var(--primary); color: #fff; border-color: var(--primary); }
 .btn-clear {
   background: var(--surface-softer);
   color: var(--text-muted);
