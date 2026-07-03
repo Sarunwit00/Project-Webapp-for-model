@@ -52,7 +52,6 @@ export default function App() {
   return (
     <div className="container">
       <h1>🎙️ แปลงเสียงภาษาถิ่นเป็นข้อความภาษาไทย</h1>
-      <p className="subtitle">เวอร์ชัน React + Vite (ตัวอย่างพอร์ตหน้าถอดเสียง)</p>
 
       <RecordSection
         status={status}

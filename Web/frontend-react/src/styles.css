@@ -224,6 +224,8 @@ p.subtitle {
   transition: transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease,
     filter 0.2s ease;
   font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 .btn:active {
   transform: translateY(0) scale(0.97);
@@ -513,14 +515,87 @@ audio {
   word-break: break-all;
 }
 
-@media (max-width: 560px) {
+/* ============================================================
+   จอมือถือ — จัด layout ใหม่ให้กดง่าย ปุ่มหลักเต็มความกว้าง
+   ============================================================ */
+@media (max-width: 640px) {
+  body {
+    padding: 18px 12px 36px;
+  }
+  .container {
+    padding: 0;
+  }
+  h1 {
+    margin-top: 2px;
+    font-size: 25px;
+  }
+  p.subtitle {
+    margin-bottom: 18px;
+    font-size: 14px;
+  }
+
+  .section {
+    margin-bottom: 16px;
+    padding: 18px 15px;
+    border-radius: var(--radius-md);
+  }
+  /* มือถือไม่มี hover จริง — ปิดการยกการ์ด กันค้างหลังแตะ */
+  .section:hover {
+    transform: none;
+  }
+  .section h2 {
+    font-size: 17px;
+  }
+
+  /* แถบคอนโทรล: ปุ่มโตเต็มพื้นที่ กดถนัดนิ้ว, สถานะขึ้นบรรทัดใหม่ตรงกลาง */
+  .controls {
+    gap: 10px;
+  }
+  .controls .btn {
+    flex: 1 1 auto;
+  }
+  .status {
+    flex: 1 0 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+  .btn {
+    min-height: 48px;
+  }
+
+  .dropzone {
+    padding: 22px 14px;
+  }
+  .dropzone .icon {
+    font-size: 34px;
+  }
+
+  .text-output {
+    min-height: 150px;
+    font-size: 16px;
+  }
+
+  /* ฟอร์มเสนอประโยค: ช่องเลือกเรียงลงทีละอัน + ปุ่มเสียงแบ่งครึ่งบรรทัด */
   .field-grid {
     grid-template-columns: 1fr;
   }
-  body {
-    padding: 24px 14px;
+  .suggest-audio .btn {
+    flex: 1 1 140px;
   }
+  .icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 380px) {
   h1 {
-    font-size: 26px;
+    font-size: 22px;
+  }
+  .section {
+    padding: 15px 13px;
+  }
+  .suggest-audio .btn {
+    flex-basis: 100%;
   }
 }
