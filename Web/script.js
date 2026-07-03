@@ -37,12 +37,6 @@
     recordStatus.textContent = msg;
   }
 
-  function appendText(text) {
-    if (!text) return;
-    const cur = textOutput.value.trim();
-    textOutput.value = cur ? cur + '\n' + text : text;
-  }
-
   // แสดง/ซ่อนข้อความสีแดงเมื่อโมเดลถอดเสียงไม่ออก
   function showOutputError(msg) {
     outputError.textContent = msg;
@@ -137,12 +131,13 @@
     busy = true;
     transcribeFileBtn.disabled = true;
     clearOutputError();
+    textOutput.value = ''; // ล้างผลถอดครั้งก่อน — แสดงเฉพาะข้อความของไฟล์ล่าสุด
     setStatus('⏳ กำลังถอดเสียงด้วยโมเดล...');
     try {
       const data = await transcribe(blob);
       const text = data.text || '';
       if (text) {
-        appendText(text);
+        textOutput.value = text;
         setStatus('✅ ถอดเสียงเสร็จแล้ว');
       } else if ((data.peak || 0) < 0.01) {
         showOutputError('❌ ไม่สามารถถอดข้อความได้');
