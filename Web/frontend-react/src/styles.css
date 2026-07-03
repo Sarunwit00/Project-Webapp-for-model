@@ -1,84 +1,83 @@
 /* ============================================================
-   ธีม "Neo-Brutalism" — ขอบหนา เงาแข็งเป็นบล็อก สีสด ตัวหนา
+   ธีม "Modern Sunset" — โมเดิร์นนุ่มนวล การ์ดมนโค้ง เงาฟุ้ง
+   ไล่เฉดส้ม-ชมพู + layout สองคอลัมน์ (อินพุตซ้าย / ผลลัพธ์ขวา)
    สลับสว่าง/มืดอัตโนมัติ (prefers-color-scheme)
-   คงชื่อคลาส/ตัวแปรเดิมไว้ทั้งหมด เปลี่ยนแค่ "ค่า"
+   คงชื่อคลาสเดิมของ component ไว้ทั้งหมด
    ============================================================ */
 :root {
   color-scheme: light dark;
 
-  --page-bg: #fff4e8; /* ครีมพระอาทิตย์ */
-  --grid: rgba(17, 17, 17, 0.06); /* เส้นกริดพื้นหลังจาง ๆ */
+  --page-bg: #fdf6ee; /* ครีมอุ่น */
 
-  --ink: #111111; /* เส้นขอบ + เงาแข็ง + ตัวหนัก */
   --surface: #ffffff; /* การ์ด */
-  --surface-2: #fff1e4; /* ช่องกรอก / dropzone (ครีมอ่อน) */
+  --surface-2: #fbf2e8; /* ช่องกรอก / dropzone */
 
-  --heading: #1a0f0a;
-  --text: #241611;
-  --text-muted: #6b5348;
-  --text-faint: #9b8577;
+  --border: rgba(140, 105, 80, 0.16);
+  --border-strong: rgba(140, 105, 80, 0.3);
+
+  --heading: #2a1710;
+  --text: #3a2c24;
+  --text-muted: #8a7565;
+  --text-faint: #b3a294;
 
   --primary: #ff5c39; /* ส้มพระอาทิตย์ */
-  --primary-ink: #ffffff;
+  --primary-2: #ff9a3d; /* ส้ม-เหลืองไล่เฉด */
+  --primary-strong: #e0431f;
+  --primary-soft: rgba(255, 92, 57, 0.12);
   --accent: #ff2e93; /* ชมพูมะเจนต้า */
-  --info: #ffd23f; /* เหลือง (ปุ่มรอง) */
-  --info-ink: #1a0f0a;
-  --record: #ff2e93; /* ชมพูปุ่มอัด */
-  --record-ink: #ffffff;
-  --recording: #16d67b; /* เขียวสดตอนอัด */
+  --record: #ff5470;
+  --recording: #12c06e;
 
-  --danger: #e60023;
-  --danger-bg: #ffe1e1;
+  --danger: #e11d48;
+  --danger-bg: rgba(255, 46, 99, 0.12);
   --success: #0a8f50;
-  --success-bg: #d6f7e6;
-  --warning: #8a5a00;
-  --warning-bg: #ffe9ad;
+  --warning: #a25b00;
+  --warning-bg: rgba(245, 158, 11, 0.16);
 
-  --badge-bg: #ffd23f; /* เหลืองสติกเกอร์ */
-  --badge-ink: #111111;
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-sm: 11px;
 
-  --border-w: 3px;
-  --radius-lg: 16px;
-  --radius-md: 12px;
-  --radius-sm: 10px;
-
-  --shadow: 5px 5px 0 var(--ink);
-  --shadow-lg: 8px 8px 0 var(--ink);
-  --shadow-press: 2px 2px 0 var(--ink);
+  --shadow-sm: 0 4px 16px rgba(70, 40, 15, 0.08);
+  --shadow: 0 16px 38px -12px rgba(70, 40, 15, 0.22);
+  --shadow-primary: 0 12px 26px -8px rgba(255, 92, 57, 0.5);
+  --shadow-pink: 0 12px 26px -8px rgba(255, 46, 147, 0.45);
+  --ring: 0 0 0 4px var(--primary-soft);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page-bg: #191410; /* น้ำตาลเข้มอุ่น */
-    --grid: rgba(255, 255, 255, 0.05);
+    --page-bg: #16110e;
 
-    --ink: #ffe9d6; /* ขอบ/เงาสว่างอุ่นบนพื้นมืด */
-    --surface: #2a2018;
-    --surface-2: #1f1811;
+    --surface: #241b16;
+    --surface-2: #1c1510;
 
-    --heading: #fff6ee;
-    --text: #f3e7db;
-    --text-muted: #c6b3a4;
-    --text-faint: #8c7869;
+    --border: rgba(255, 220, 190, 0.12);
+    --border-strong: rgba(255, 220, 190, 0.22);
 
-    --primary: #ff7a52; /* ส้มสว่างขึ้น */
-    --primary-ink: #191410;
+    --heading: #fdeee4;
+    --text: #ede0d5;
+    --text-muted: #b7a494;
+    --text-faint: #8a7666;
+
+    --primary: #ff7a52;
+    --primary-2: #ffab4d;
+    --primary-strong: #ff8a5c;
+    --primary-soft: rgba(255, 122, 82, 0.16);
     --accent: #ff5aa8;
-    --info: #ffd23f;
-    --info-ink: #191410;
-    --record: #ff5aa8; /* ชมพู */
-    --record-ink: #191410;
+    --record: #ff6b83;
     --recording: #2ee88f;
 
-    --danger: #ff6b6b;
-    --danger-bg: #3a201a;
+    --danger: #ff6b81;
+    --danger-bg: rgba(255, 46, 99, 0.18);
     --success: #43d391;
-    --success-bg: #123326;
     --warning: #ffcf5c;
-    --warning-bg: #3a2f12;
+    --warning-bg: rgba(245, 158, 11, 0.16);
 
-    --badge-bg: #ffd23f;
-    --badge-ink: #111111;
+    --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.4);
+    --shadow: 0 20px 44px -14px rgba(0, 0, 0, 0.7);
+    --shadow-primary: 0 12px 26px -8px rgba(255, 122, 82, 0.5);
+    --shadow-pink: 0 12px 26px -8px rgba(255, 90, 168, 0.45);
   }
 }
 
@@ -89,72 +88,93 @@
 body {
   font-family: 'Sarabun', 'Segoe UI', Tahoma, sans-serif;
   margin: 0;
-  padding: 44px 20px;
+  padding: 46px 22px 60px;
   min-height: 100vh;
   color: var(--text);
-  background-color: var(--page-bg);
-  /* กริดจาง ๆ ให้ดูโมเดิร์นแบบ blueprint */
-  background-image:
-    linear-gradient(var(--grid) 2px, transparent 2px),
-    linear-gradient(90deg, var(--grid) 2px, transparent 2px);
-  background-size: 28px 28px;
+  /* แสงอุ่นฟุ้ง ๆ มุมบน ให้ดูโมเดิร์น */
+  background:
+    radial-gradient(56% 46% at 6% -4%, rgba(255, 138, 40, 0.22), transparent 60%),
+    radial-gradient(48% 40% at 104% 4%, rgba(255, 46, 147, 0.16), transparent 56%),
+    var(--page-bg);
+  background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* container = แค่ตัวจัดกึ่งกลาง */
 .container {
-  max-width: 760px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
+/* ===== หัวหน้า ===== */
+.app-header {
+  margin-bottom: 26px;
+}
 h1 {
-  display: inline-block;
-  margin: 0 0 24px;
-  padding-bottom: 6px;
-  border-bottom: 6px solid var(--primary);
-  font-size: 33px;
+  margin: 0;
+  font-size: 34px;
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  color: var(--heading);
+  background: linear-gradient(115deg, var(--primary) 0%, var(--accent) 78%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 p.subtitle {
-  margin: 0 0 22px;
+  margin: 8px 0 0;
   color: var(--text-muted);
   font-size: 15px;
-  font-weight: 600;
+}
+
+/* ===== layout สองคอลัมน์ ===== */
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+  gap: 22px;
+  align-items: start;
+  margin-bottom: 22px;
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+/* ผลลัพธ์ตรึงติดจอตอนเลื่อน (เฉพาะจอกว้าง) */
+.col-output {
+  position: sticky;
+  top: 24px;
 }
 
 /* ===== การ์ด ===== */
 .section {
-  margin-bottom: 22px;
   padding: 24px;
-  border: var(--border-w) solid var(--ink);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  box-shadow: var(--shadow);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .section h2 {
   margin: 0 0 16px;
-  font-size: 19px;
-  font-weight: 800;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--heading);
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 .badge {
   display: inline-block;
-  padding: 3px 11px;
-  border: 2px solid var(--ink);
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 800;
-  background: var(--badge-bg);
-  color: var(--badge-ink);
-  box-shadow: 2px 2px 0 var(--ink);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 10px -3px rgba(255, 46, 147, 0.5);
 }
 
 /* ===== ปุ่ม ===== */
@@ -163,76 +183,81 @@ p.subtitle {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 12px 22px;
-  border: var(--border-w) solid var(--ink);
+  padding: 13px 22px;
+  border: none;
   border-radius: var(--radius-md);
-  font-size: 16px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
   text-decoration: none;
   line-height: 1.1;
-  color: var(--ink);
+  color: var(--text);
   background: var(--surface);
-  box-shadow: var(--shadow);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease,
+    background-color 0.2s ease;
   font-family: inherit;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 .btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-press);
+  transform: translateY(0) scale(0.97);
 }
 .btn-sm {
-  padding: 8px 14px;
+  padding: 9px 15px;
   font-size: 14px;
 }
 .btn:focus-visible,
 .icon-btn:focus-visible {
   outline: none;
-  box-shadow: var(--shadow), 0 0 0 4px var(--accent);
+  box-shadow: var(--ring);
 }
 .btn-record {
-  background: var(--record);
-  color: var(--record-ink);
+  background: linear-gradient(135deg, var(--accent), var(--record));
+  color: #fff;
+  box-shadow: var(--shadow-pink);
 }
 .btn-record.recording {
-  background: var(--recording);
-  color: #08130d;
-  animation: pulse 1.2s infinite;
+  background: linear-gradient(135deg, #16d67b, #0bb466);
+  color: #06231a;
+  box-shadow: 0 12px 26px -8px rgba(18, 192, 110, 0.5);
+  animation: pulse 1.5s infinite;
 }
 .btn-primary {
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+  box-shadow: var(--shadow-primary);
 }
 .btn-secondary {
-  background: var(--info);
-  color: var(--info-ink);
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+  border: 1.5px solid transparent;
 }
 .btn-secondary.speaking {
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+  border-color: transparent;
 }
 .btn-clear {
-  background: var(--surface);
-  color: var(--text);
+  background: var(--surface-2);
+  color: var(--text-muted);
 }
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  box-shadow: var(--shadow-press);
-  filter: grayscale(0.35);
+  box-shadow: none;
+  filter: grayscale(0.2);
 }
 
 @keyframes pulse {
   0%,
   100% {
-    box-shadow: var(--shadow);
+    box-shadow: 0 0 0 0 rgba(18, 192, 110, 0.5);
   }
   50% {
-    box-shadow: var(--shadow), 0 0 0 7px rgba(22, 214, 123, 0.35);
+    box-shadow: 0 0 0 12px rgba(18, 192, 110, 0);
   }
 }
 .mic-icon {
@@ -250,24 +275,28 @@ p.subtitle {
 .status {
   margin-left: auto;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-muted);
 }
 
 /* ===== โซนอัปโหลด ===== */
 .dropzone {
-  border: var(--border-w) dashed var(--ink);
+  border: 2px dashed var(--border-strong);
   border-radius: var(--radius-md);
   padding: 30px;
   text-align: center;
   background: var(--surface-2);
   cursor: pointer;
-  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.15s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
 }
 .dropzone p {
   margin: 6px 0;
   color: var(--text-muted);
-  font-weight: 600;
 }
 .dropzone p strong {
   color: var(--heading);
@@ -292,39 +321,41 @@ audio {
 }
 .icon-btn {
   flex: 0 0 auto;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
-  border: var(--border-w) solid var(--ink);
-  background: var(--danger-bg);
-  color: var(--danger);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-muted);
   font-size: 16px;
-  font-weight: 800;
   line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-press);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
+.icon-btn:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border-color: var(--danger);
+}
 .icon-btn:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
+  transform: scale(0.92);
 }
 
-/* ===== กล่องผลลัพธ์ ===== */
+/* ===== กล่องผลลัพธ์ (พระเอกคอลัมน์ขวา) ===== */
 .text-output {
   width: 100%;
-  min-height: 180px;
-  padding: 16px;
-  border: var(--border-w) solid var(--ink);
+  min-height: 300px;
+  padding: 18px;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-md);
-  font-size: 18px;
+  font-size: 19px;
   line-height: 1.7;
-  font-weight: 600;
   background: var(--surface-2);
   resize: vertical;
   font-family: inherit;
@@ -332,23 +363,21 @@ audio {
 }
 .text-output::placeholder {
   color: var(--text-faint);
-  font-weight: 500;
 }
 .text-output:focus {
   outline: none;
-  box-shadow: var(--shadow);
-  transform: translate(-1px, -1px);
+  border-color: var(--primary);
+  box-shadow: var(--ring);
 }
 .output-error {
   margin: 14px 0 0;
   padding: 12px 15px;
-  border: var(--border-w) solid var(--ink);
   border-radius: var(--radius-sm);
   background: var(--danger-bg);
+  border-left: 4px solid var(--danger);
   color: var(--danger);
-  font-size: 16px;
-  font-weight: 800;
-  box-shadow: var(--shadow-press);
+  font-size: 15px;
+  font-weight: 700;
 }
 
 /* ===== ข้อความช่วยเหลือ ===== */
@@ -357,19 +386,16 @@ audio {
   color: var(--text-muted);
   margin-top: 10px;
   line-height: 1.55;
-  font-weight: 600;
 }
 .file-name {
   display: inline-block;
   margin-top: 12px;
   padding: 6px 13px;
-  border: 2px solid var(--ink);
   border-radius: 999px;
-  background: var(--badge-bg);
-  color: var(--badge-ink);
+  background: var(--primary-soft);
+  color: var(--primary-strong);
   font-size: 14px;
-  font-weight: 800;
-  box-shadow: 2px 2px 0 var(--ink);
+  font-weight: 700;
   word-break: break-all;
 }
 
@@ -382,26 +408,26 @@ audio {
 }
 .meter-label {
   font-size: 13px;
-  font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
 }
 .meter {
   flex: 1;
-  height: 18px;
+  height: 14px;
   background: var(--surface-2);
-  border: 2px solid var(--ink);
+  border: 1px solid var(--border-strong);
   border-radius: 999px;
   overflow: hidden;
 }
 .meter-fill {
   height: 100%;
   width: 0%;
-  background: var(--recording);
+  background: linear-gradient(90deg, var(--recording), #6ee7b7);
+  border-radius: 999px;
   transition: width 0.06s linear, background-color 0.12s linear;
 }
 .meter-fill.clip {
-  background: var(--record);
+  background: linear-gradient(90deg, var(--record), #ffa9b6);
 }
 
 /* ===== ฟอร์มเสนอประโยคใหม่ (ส่วนที่ 4) ===== */
@@ -411,7 +437,7 @@ audio {
 .field label {
   display: block;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--heading);
   margin-bottom: 7px;
 }
@@ -426,20 +452,19 @@ audio {
 .suggest-input {
   width: 100%;
   padding: 12px 13px;
-  border: var(--border-w) solid var(--ink);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   font-size: 15px;
   font-family: inherit;
-  font-weight: 600;
   color: var(--text);
   background: var(--surface-2);
   resize: vertical;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .suggest-input:focus {
   outline: none;
-  box-shadow: var(--shadow);
-  transform: translate(-1px, -1px);
+  border-color: var(--primary);
+  box-shadow: var(--ring);
 }
 .suggest-audio {
   display: flex;
@@ -453,34 +478,52 @@ audio {
 }
 .suggest-audio-name {
   font-size: 13px;
-  font-weight: 700;
   color: var(--text-muted);
   word-break: break-all;
 }
 
-/* ===== เอฟเฟกต์ hover เฉพาะเครื่องที่มีเมาส์จริง (กันค้างบนจอสัมผัส) ===== */
+/* ===== ลิงก์ผู้ดูแล ===== */
+.admin-link-wrap {
+  text-align: center;
+  margin-top: 8px;
+}
+.admin-link {
+  display: inline-block;
+  padding: 9px 18px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+.admin-link:hover {
+  background: var(--primary-soft);
+  color: var(--primary-strong);
+}
+
+/* ===== เอฟเฟกต์ hover เฉพาะเครื่องที่มีเมาส์ (กันค้างบนจอสัมผัส) ===== */
 @media (hover: hover) and (pointer: fine) {
   .section:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
   }
   .btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    filter: brightness(1.04);
+    box-shadow: var(--shadow);
+  }
+  .btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
   }
   .btn:disabled:hover {
     transform: none;
-    box-shadow: var(--shadow-press);
+    filter: grayscale(0.2);
+    box-shadow: none;
   }
-  .dropzone:hover,
-  .dropzone.dragover {
-    border-style: solid;
-    box-shadow: var(--shadow);
-    transform: translate(-2px, -2px);
-  }
-  .icon-btn:hover {
-    transform: translate(-1px, -1px);
-    box-shadow: var(--shadow);
+  .dropzone:hover {
+    transform: translateY(-2px);
   }
 }
 
@@ -491,34 +534,48 @@ audio {
 }
 
 /* ============================================================
-   จอมือถือ — จัด layout ใหม่ให้กดง่าย ปุ่มหลักเต็มความกว้าง
+   แท็บเล็ต — พับเหลือคอลัมน์เดียว (อินพุตบน / ผลลัพธ์ล่าง)
+   ============================================================ */
+@media (max-width: 880px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .col {
+    gap: 18px;
+  }
+  .col-output {
+    position: static;
+  }
+  .text-output {
+    min-height: 200px;
+  }
+}
+
+/* ============================================================
+   มือถือ — ปุ่มหลักเต็มความกว้าง กดถนัดนิ้ว
    ============================================================ */
 @media (max-width: 640px) {
   body {
-    padding: 18px 12px 36px;
+    padding: 22px 14px 44px;
   }
-  .container {
-    padding: 0;
+  .app-header {
+    margin-bottom: 18px;
   }
   h1 {
-    margin: 2px 0 20px;
-    font-size: 26px;
-    border-bottom-width: 5px;
+    font-size: 25px;
   }
   p.subtitle {
-    margin-bottom: 18px;
     font-size: 14px;
   }
 
   .section {
-    margin-bottom: 16px;
     padding: 18px 16px;
   }
   .section h2 {
     font-size: 17px;
   }
 
-  /* แถบคอนโทรล: ปุ่มโตเต็มพื้นที่ กดถนัดนิ้ว, สถานะขึ้นบรรทัดใหม่ตรงกลาง */
   .controls {
     gap: 10px;
   }
@@ -531,7 +588,7 @@ audio {
     text-align: center;
   }
   .btn {
-    min-height: 50px;
+    min-height: 48px;
   }
 
   .dropzone {
@@ -542,11 +599,10 @@ audio {
   }
 
   .text-output {
-    min-height: 150px;
+    min-height: 170px;
     font-size: 16px;
   }
 
-  /* ฟอร์มเสนอประโยค: ช่องเลือกเรียงลงทีละอัน + ปุ่มเสียงแบ่งครึ่งบรรทัด */
   .field-grid {
     grid-template-columns: 1fr;
   }

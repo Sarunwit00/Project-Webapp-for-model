@@ -51,41 +51,42 @@ export default function App() {
 
   return (
     <div className="container">
-      <h1>🎙️ แปลงเสียงภาษาถิ่นเป็นข้อความภาษาไทย</h1>
+      <header className="app-header">
+        <h1>🎙️ แปลงเสียงภาษาถิ่นเป็นข้อความภาษาไทย</h1>
+      </header>
 
-      <RecordSection
-        status={status}
-        setStatus={setStatus}
-        busy={busy}
-        onTranscribe={runTranscription}
-      />
+      {/* เดสก์ท็อป: อินพุตซ้าย / ผลลัพธ์ขวา — มือถือ: ซ้อนแนวตั้ง */}
+      <div className="workspace">
+        <div className="col col-input">
+          <RecordSection
+            status={status}
+            setStatus={setStatus}
+            busy={busy}
+            onTranscribe={runTranscription}
+          />
 
-      <UploadSection busy={busy} onTranscribe={runTranscription} />
+          <UploadSection busy={busy} onTranscribe={runTranscription} />
+        </div>
 
-      <OutputSection
-        text={output}
-        error={outputError}
-        onClear={() => {
-          setOutput('')
-          setOutputError('')
-        }}
-        registerStop={(fn) => {
-          stopSpeakRef.current = fn
-        }}
-      />
+        <div className="col col-output">
+          <OutputSection
+            text={output}
+            error={outputError}
+            onClear={() => {
+              setOutput('')
+              setOutputError('')
+            }}
+            registerStop={(fn) => {
+              stopSpeakRef.current = fn
+            }}
+          />
+        </div>
+      </div>
 
       <SuggestSection />
 
-      <div style={{ textAlign: 'center', marginTop: 20 }}>
-        <a
-          href="/admin.html"
-          style={{
-            color: 'var(--text-muted)',
-            fontSize: 14,
-            textDecoration: 'none',
-            fontWeight: 600,
-          }}
-        >
+      <div className="admin-link-wrap">
+        <a href="/admin.html" className="admin-link">
           🛠️ เข้าสู่ระบบผู้ดูแล
         </a>
       </div>
