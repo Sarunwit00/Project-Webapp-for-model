@@ -40,6 +40,14 @@ from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 # ---------------------------------------------------------------------------
 HERE = Path(__file__).resolve()
 WEB_DIR = HERE.parent.parent                       # .../WebAppProject/Web
+
+# หน้าเว็บที่จะเสิร์ฟ: ถ้ามี React build (frontend-react/dist) ให้ใช้อันนั้น
+# ไม่งั้น fallback ไปเวอร์ชัน vanilla ใน Web/ (ปรับ/บังคับได้ด้วย env FRONTEND_DIR)
+_REACT_DIST = WEB_DIR / "frontend-react" / "dist"
+FRONTEND_DIR = Path(
+    os.environ.get("FRONTEND_DIR", _REACT_DIST if _REACT_DIST.is_dir() else WEB_DIR)
+)
+print(f"[startup] เสิร์ฟหน้าเว็บจาก: {FRONTEND_DIR}")
 # โฟลเดอร์โมเดลอยู่ที่ Desktop/Model (เปลี่ยนได้ด้วย env var MODEL_DIR)
 DEFAULT_MODEL_DIR = HERE.parents[3] / "Model"      # .../Desktop/Model
 MODEL_DIR = Path(os.environ.get("MODEL_DIR", DEFAULT_MODEL_DIR))
@@ -542,17 +550,17 @@ def suggest_audio(name: str):
 @app.get("/", include_in_schema=False)
 @app.get("/index.html", include_in_schema=False)
 def index_page():
-    resp = FileResponse(str(WEB_DIR / "index.html"), media_type="text/html")
+    resp = FileResponse(str(FRONTEND_DIR / "index.html"), media_type="text/html")
     resp.headers["Cache-Control"] = "no-store, must-revalidate"
     return resp
 
 
 @app.get("/admin.html", include_in_schema=False)
 def admin_page():
-    resp = FileResponse(str(WEB_DIR / "admin.html"), media_type="text/html")
+    resp = FileResponse(str(FRONTEND_DIR / "admin.html"), media_type="text/html")
     resp.headers["Cache-Control"] = "no-store, must-revalidate"
     return resp
 
 
 # เสิร์ฟหน้าเว็บ (ต้อง mount ท้ายสุด เพราะ "/" จะ match ทุก path)
-app.mount("/", StaticFiles(directory=str(WEB_DIR), html=True), name="web")
+app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="web")

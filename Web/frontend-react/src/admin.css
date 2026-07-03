@@ -1,0 +1,344 @@
+/* ===== สไตล์เฉพาะหน้า admin (พอร์ตจาก inline <style> ใน admin.html) ===== */
+[hidden] {
+  display: none !important;
+}
+.container {
+  max-width: 1120px;
+}
+
+/* ปุ่มขนาดเล็กสำหรับแถบเครื่องมือ (styles.css ที่ตัดมาไม่มีตัวนี้) */
+.btn-sm {
+  padding: 8px 15px;
+  font-size: 14px;
+}
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.page-head h1 {
+  font-size: 26px;
+}
+.user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.user-chip {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 14px 4px 4px;
+}
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+.user-box .uname {
+  font-size: 14px;
+  color: var(--heading);
+  font-weight: 600;
+}
+.warn-banner {
+  background: var(--warning-bg);
+  border-left: 4px solid var(--warning);
+  padding: 11px 15px;
+  border-radius: var(--radius-sm);
+  color: var(--warning);
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+.login-panel {
+  max-width: 380px;
+  margin: 48px auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 30px;
+  box-shadow: var(--shadow-card);
+}
+.login-panel h2 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  color: var(--heading);
+}
+.login-panel input {
+  width: 100%;
+  padding: 12px 13px;
+  margin-bottom: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--text);
+}
+.login-panel input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: var(--ring);
+}
+.login-panel .btn {
+  width: 100%;
+  justify-content: center;
+}
+.login-err {
+  color: var(--danger);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.metric {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+.metric .label {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.metric .value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--heading);
+  margin-top: 2px;
+}
+.metric.total {
+  background: var(--primary-50);
+  border-color: var(--primary-100);
+}
+.metric.total .value {
+  color: var(--primary-deep);
+}
+.metric.pending .value {
+  color: var(--warning);
+}
+.metric.approved .value {
+  color: var(--success);
+}
+.metric.rejected .value {
+  color: var(--danger);
+}
+.admin-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.spacer {
+  margin-left: auto;
+}
+/* กลุ่มปุ่มกรอง = segmented control */
+.filter-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--surface-softer);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+}
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.filter-btn:hover {
+  color: var(--primary-hover);
+  background: var(--surface);
+}
+.filter-btn.active {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+.filter-btn:focus-visible,
+.icon-action:focus-visible,
+.mini-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+/* ปุ่มไอคอนกลม (รีเฟรช) */
+.icon-action {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+.icon-action:hover {
+  border-color: var(--primary);
+  background: var(--primary-50);
+  color: var(--primary-hover);
+}
+/* แผงปุ่มแอ็กชัน (ดาวน์โหลด + ล้างข้อมูล) */
+.action-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+.action-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-right: 2px;
+}
+/* ปุ่มดาวน์โหลด = ชิปม่วงอ่อน */
+.action-bar .btn-secondary {
+  background: var(--primary-50);
+  border-color: var(--primary-100);
+  color: var(--primary-deep);
+}
+.action-bar .btn-secondary:hover {
+  background: var(--primary-100);
+  border-color: var(--primary);
+  color: var(--primary-deep);
+  transform: translateY(-1px);
+}
+.btn-danger {
+  background: var(--danger);
+  color: #fff;
+  border: 1px solid var(--danger);
+}
+.btn-danger:hover {
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+}
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+table.admin {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+table.admin th,
+table.admin td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+table.admin tbody tr:last-child td {
+  border-bottom: none;
+}
+table.admin tbody tr:hover {
+  background: var(--surface-soft);
+}
+table.admin th {
+  background: var(--surface-softer);
+  font-weight: 700;
+  color: var(--heading);
+  white-space: nowrap;
+}
+table.admin audio {
+  width: 190px;
+  height: 34px;
+}
+.pill {
+  display: inline-block;
+  padding: 3px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill.pending {
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.pill.approved {
+  background: var(--success-bg);
+  color: var(--success);
+}
+.pill.rejected {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.mini-btn {
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+.mini-btn.approve {
+  color: var(--success);
+  border-color: #a9e0c8;
+}
+.mini-btn.reject {
+  color: var(--warning);
+  border-color: #f0d39a;
+}
+.mini-btn.del {
+  color: var(--danger);
+  border-color: #f2bcbc;
+}
+.mini-btn:hover {
+  transform: translateY(-1px);
+  background: var(--surface-soft);
+}
+.time {
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+.empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px;
+}

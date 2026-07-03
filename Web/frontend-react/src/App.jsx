@@ -76,6 +76,20 @@ export default function App() {
       />
 
       <SuggestSection />
+
+      <div style={{ textAlign: 'center', marginTop: 20 }}>
+        <a
+          href="/admin.html"
+          style={{
+            color: 'var(--text-muted)',
+            fontSize: 14,
+            textDecoration: 'none',
+            fontWeight: 600,
+          }}
+        >
+          🛠️ เข้าสู่ระบบผู้ดูแล
+        </a>
+      </div>
     </div>
   )
 }

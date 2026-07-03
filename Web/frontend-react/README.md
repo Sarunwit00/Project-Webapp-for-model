@@ -24,25 +24,31 @@ Vite ถูกตั้ง proxy ให้แล้ว (ดู `vite.config.js`)
 ## build ไป production
 
 ```bash
-npm run build      # ได้ผลลัพธ์ในโฟลเดอร์ dist/
+npm run build      # ได้ผลลัพธ์ในโฟลเดอร์ dist/ (ทั้ง index.html และ admin.html)
 ```
 
-จากนั้นให้ FastAPI เสิร์ฟโฟลเดอร์ `dist/` แทน `Web/` เช่น แก้ `app.py`:
+จากนั้นแค่ **รีสตาร์ท backend** — `app.py` ตรวจเจอ `frontend-react/dist/` อัตโนมัติ
+แล้วเสิร์ฟเวอร์ชัน React ให้เอง (ถ้ายังไม่ได้ build จะ fallback ไปเวอร์ชัน vanilla ที่ `Web/`
+จึงไม่พังแน่นอน). บังคับเลือกโฟลเดอร์เองได้ด้วย env `FRONTEND_DIR`:
 
-```python
-app.mount("/", StaticFiles(directory=str(HERE.parent.parent / "frontend-react" / "dist"),
-                           html=True), name="web")
+```bash
+set FRONTEND_DIR=C:\Users\Sarunwit\Desktop\WebAppProject\Web   REM กลับไปใช้ vanilla
 ```
 
 (เวอร์ชัน vanilla เดิมที่ `Web/` ยังอยู่ครบ ไม่ได้ถูกแตะ — ใช้เป็นตัวเทียบได้)
 
 ## โครงสร้าง
 
+เว็บมี 2 หน้า: `index.html` (ถอดเสียง) และ `admin.html` (ผู้ดูแล)
+
 ```
 src/
-  main.jsx                 จุดเริ่ม (mount React)
+  main.jsx                 จุดเริ่มหน้า index (mount App)
   App.jsx                  state กลาง + runTranscription() ที่ใช้ร่วมกัน
+  admin.jsx                จุดเริ่มหน้า admin (mount AdminApp)
+  AdminApp.jsx             หน้าผู้ดูแล: login, ตาราง, กรอง, อนุมัติ/ปฏิเสธ/ลบ, ดาวน์โหลด
   styles.css               ธีมเดิม (คลาสเดียวกับ Web/style.css)
+  admin.css                สไตล์เฉพาะหน้า admin
   lib/
     audio.js               แปลงเสียง -> WAV 16kHz (พอร์ตตรง ๆ จาก script.js)
     api.js                 fetch /transcribe
@@ -53,7 +59,9 @@ src/
     RecordSection.jsx      ส่วนที่ 1 อัดเสียง
     UploadSection.jsx      ส่วนที่ 2 อัปโหลดไฟล์
     OutputSection.jsx      ส่วนที่ 3 ผลลัพธ์ + อ่านออกเสียง/ล้าง
+    SuggestSection.jsx     ส่วนที่ 4 เสนอประโยคใหม่
 ```
 
-> หมายเหตุ: ตัวอย่างนี้พอร์ตเฉพาะหน้าถอดเสียง (ส่วนที่ 1–3) ยังไม่รวมฟอร์ม
-> "เสนอประโยคใหม่" (ส่วนที่ 4) และหน้า admin
+> พอร์ตครบทั้งหน้าถอดเสียง (ส่วนที่ 1–4) และหน้า admin เทียบเท่าเวอร์ชัน vanilla แล้ว
+> ยกเว้น logic เก็บ session ตอนรีโหลด/ออกจากหน้า (pagehide/pageshow ใน admin.html เดิม)
+> ที่ทำให้ง่ายลง — โทเคนเก็บใน localStorage ตรง ๆ
