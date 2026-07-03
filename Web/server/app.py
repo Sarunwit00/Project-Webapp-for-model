@@ -41,13 +41,16 @@ from transformers import Wav2Vec2ForCTC, Wav2Vec2Processor
 HERE = Path(__file__).resolve()
 WEB_DIR = HERE.parent.parent                       # .../WebAppProject/Web
 
-# หน้าเว็บที่จะเสิร์ฟ: ถ้ามี React build (frontend-react/dist) ให้ใช้อันนั้น
-# ไม่งั้น fallback ไปเวอร์ชัน vanilla ใน Web/ (ปรับ/บังคับได้ด้วย env FRONTEND_DIR)
-_REACT_DIST = WEB_DIR / "frontend-react" / "dist"
-FRONTEND_DIR = Path(
-    os.environ.get("FRONTEND_DIR", _REACT_DIST if _REACT_DIST.is_dir() else WEB_DIR)
-)
+# หน้าเว็บหลักคือ React build ที่ frontend-react/dist (เวอร์ชัน vanilla เดิมถูกถอดออกแล้ว)
+# run.bat จะ build ให้อัตโนมัติก่อนเปิดเซิร์ฟเวอร์ — ปรับที่อยู่ได้ด้วย env FRONTEND_DIR
+FRONTEND_DIR = Path(os.environ.get("FRONTEND_DIR", WEB_DIR / "frontend-react" / "dist"))
 print(f"[startup] เสิร์ฟหน้าเว็บจาก: {FRONTEND_DIR}")
+if not (FRONTEND_DIR / "index.html").exists():
+    print(
+        "[startup] ⚠️ ไม่พบ index.html — ยังไม่ได้ build React? "
+        "รัน `npm install` แล้ว `npm run build` ใน Web/frontend-react ก่อน "
+        "(หรือเปิดผ่าน server/run.bat ที่ build ให้อัตโนมัติ)"
+    )
 # โฟลเดอร์โมเดลอยู่ที่ Desktop/Model (เปลี่ยนได้ด้วย env var MODEL_DIR)
 DEFAULT_MODEL_DIR = HERE.parents[3] / "Model"      # .../Desktop/Model
 MODEL_DIR = Path(os.environ.get("MODEL_DIR", DEFAULT_MODEL_DIR))

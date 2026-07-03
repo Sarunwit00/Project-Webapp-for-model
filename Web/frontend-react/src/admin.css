@@ -1,15 +1,9 @@
-/* ===== สไตล์เฉพาะหน้า admin (พอร์ตจาก inline <style> ใน admin.html) ===== */
+/* ===== สไตล์เฉพาะหน้า admin (ธีมกระจก) — ใช้ตัวแปรร่วมจาก styles.css ===== */
 [hidden] {
   display: none !important;
 }
 .container {
   max-width: 1120px;
-}
-
-/* ปุ่มขนาดเล็กสำหรับแถบเครื่องมือ (styles.css ที่ตัดมาไม่มีตัวนี้) */
-.btn-sm {
-  padding: 8px 15px;
-  font-size: 14px;
 }
 
 .page-head {
@@ -18,9 +12,10 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 6px;
 }
 .page-head h1 {
-  font-size: 26px;
+  font-size: 28px;
 }
 .user-box {
   display: flex;
@@ -31,8 +26,10 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
+  background: var(--surface);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   padding: 4px 14px 4px 4px;
 }
@@ -40,7 +37,7 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   color: #fff;
   font-weight: 700;
   font-size: 14px;
@@ -56,6 +53,7 @@
 }
 .warn-banner {
   background: var(--warning-bg);
+  border: 1px solid transparent;
   border-left: 4px solid var(--warning);
   padding: 11px 15px;
   border-radius: var(--radius-sm);
@@ -63,14 +61,18 @@
   font-size: 13px;
   margin-bottom: 18px;
 }
+
+/* การ์ด login = กระจกฝ้า */
 .login-panel {
   max-width: 380px;
-  margin: 48px auto;
+  margin: 56px auto;
   background: var(--surface);
-  border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(155%);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   padding: 30px;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-card), inset 0 1px 0 var(--glass-hi);
 }
 .login-panel h2 {
   margin: 0 0 18px;
@@ -86,6 +88,7 @@
   font-size: 15px;
   font-family: inherit;
   color: var(--text);
+  background: var(--surface-softer);
 }
 .login-panel input:focus {
   outline: none;
@@ -101,6 +104,8 @@
   font-size: 14px;
   margin: 10px 0 0;
 }
+
+/* การ์ดสถิติ = กระจกฝ้า */
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -108,10 +113,13 @@
   margin-bottom: 22px;
 }
 .metric {
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
+  background: var(--surface);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   padding: 16px 18px;
+  box-shadow: var(--shadow-card), inset 0 1px 0 var(--glass-hi);
 }
 .metric .label {
   font-size: 13px;
@@ -122,10 +130,6 @@
   font-weight: 800;
   color: var(--heading);
   margin-top: 2px;
-}
-.metric.total {
-  background: var(--primary-50);
-  border-color: var(--primary-100);
 }
 .metric.total .value {
   color: var(--primary-deep);
@@ -139,6 +143,7 @@
 .metric.rejected .value {
   color: var(--danger);
 }
+
 .admin-bar {
   display: flex;
   align-items: center;
@@ -150,13 +155,15 @@
 .spacer {
   margin-left: auto;
 }
-/* กลุ่มปุ่มกรอง = segmented control */
+/* กลุ่มปุ่มกรอง = segmented control กระจก */
 .filter-group {
   display: inline-flex;
   flex-wrap: wrap;
   gap: 4px;
-  background: var(--surface-softer);
-  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
   padding: 4px;
 }
@@ -177,9 +184,9 @@
   background: var(--surface);
 }
 .filter-btn.active {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   color: #fff;
-  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 6px 16px -4px rgba(99, 102, 241, 0.55);
 }
 .filter-btn:focus-visible,
 .icon-action:focus-visible,
@@ -193,8 +200,10 @@
   height: 40px;
   flex: 0 0 auto;
   border-radius: 50%;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--glass-border);
   background: var(--surface);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
   color: var(--text-muted);
   font-size: 16px;
   cursor: pointer;
@@ -207,8 +216,9 @@
   border-color: var(--primary);
   background: var(--primary-50);
   color: var(--primary-hover);
+  transform: translateY(-1px);
 }
-/* แผงปุ่มแอ็กชัน (ดาวน์โหลด + ล้างข้อมูล) */
+/* แผงปุ่มแอ็กชัน = การ์ดกระจก */
 .action-bar {
   display: flex;
   align-items: center;
@@ -217,8 +227,11 @@
   margin-bottom: 18px;
   padding: 12px 14px;
   background: var(--surface-soft);
-  border: 1px solid var(--border);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 0 var(--glass-hi);
 }
 .action-label {
   font-size: 13px;
@@ -226,32 +239,37 @@
   color: var(--text-muted);
   margin-right: 2px;
 }
-/* ปุ่มดาวน์โหลด = ชิปม่วงอ่อน */
+/* ปุ่มดาวน์โหลด = ชิปกระจกม่วงอ่อน */
 .action-bar .btn-secondary {
   background: var(--primary-50);
-  border-color: var(--primary-100);
+  border-color: var(--glass-border);
   color: var(--primary-deep);
 }
 .action-bar .btn-secondary:hover {
   background: var(--primary-100);
   border-color: var(--primary);
-  color: var(--primary-deep);
   transform: translateY(-1px);
 }
 .btn-danger {
-  background: var(--danger);
+  background: linear-gradient(135deg, #fb7185, var(--record));
   color: #fff;
-  border: 1px solid var(--danger);
+  border: none;
+  box-shadow: 0 10px 22px -8px rgba(244, 63, 94, 0.6);
 }
 .btn-danger:hover {
-  filter: brightness(0.92);
+  filter: brightness(1.05);
   transform: translateY(-1px);
 }
+
+/* ตาราง = การ์ดกระจก */
 .table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--border);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-md);
   background: var(--surface);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(150%);
+  box-shadow: var(--shadow-card), inset 0 1px 0 var(--glass-hi);
 }
 table.admin {
   width: 100%;
@@ -269,10 +287,10 @@ table.admin tbody tr:last-child td {
   border-bottom: none;
 }
 table.admin tbody tr:hover {
-  background: var(--surface-soft);
+  background: var(--surface-softer);
 }
 table.admin th {
-  background: var(--surface-softer);
+  background: var(--surface-soft);
   font-weight: 700;
   color: var(--heading);
   white-space: nowrap;
@@ -310,7 +328,8 @@ table.admin audio {
   padding: 6px 11px;
   border-radius: 8px;
   border: 1px solid var(--border-strong);
-  background: var(--surface);
+  background: var(--surface-softer);
+  color: var(--text);
   cursor: pointer;
   font-family: inherit;
   font-size: 13px;
@@ -318,15 +337,12 @@ table.admin audio {
 }
 .mini-btn.approve {
   color: var(--success);
-  border-color: #a9e0c8;
 }
 .mini-btn.reject {
   color: var(--warning);
-  border-color: #f0d39a;
 }
 .mini-btn.del {
   color: var(--danger);
-  border-color: #f2bcbc;
 }
 .mini-btn:hover {
   transform: translateY(-1px);
@@ -341,4 +357,10 @@ table.admin audio {
   text-align: center;
   color: var(--text-muted);
   padding: 32px;
+}
+
+@media (max-width: 720px) {
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

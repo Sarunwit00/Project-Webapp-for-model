@@ -1,8 +1,8 @@
-# หน้าถอดเสียง — เวอร์ชัน React + Vite (ตัวอย่าง)
+# หน้าเว็บ (React + Vite) — ธีม Glassmorphism
 
-พอร์ตหน้าถอดเสียง (อัดเสียง / อัปโหลดไฟล์ / แสดงผล + อ่านออกเสียง) จากเวอร์ชัน
-vanilla (`Web/index.html` + `Web/script.js`) มาเป็น React โดย **ใช้ backend FastAPI ตัวเดิม**
-ไม่ต้องแก้อะไรฝั่งเซิร์ฟเวอร์ — เรียก `POST /transcribe` แล้วอ่าน `{text, unreliable, ...}` เหมือนเดิม
+หน้าเว็บหลักของโปรเจกต์ (ถอดเสียง + หน้า admin) เขียนด้วย React ธีมกระจก
+สลับสว่าง/มืดอัตโนมัติตามระบบ ใช้ **backend FastAPI ตัวเดิม** — เรียก `POST /transcribe`
+แล้วอ่าน `{text, unreliable, ...}` โดยตรง (เวอร์ชัน vanilla เดิมถูกถอดออกแล้ว)
 
 ## รันตอนพัฒนา (dev)
 
@@ -23,19 +23,16 @@ Vite ถูกตั้ง proxy ให้แล้ว (ดู `vite.config.js`)
 
 ## build ไป production
 
+วิธีง่ายสุด: **ดับเบิลคลิก `Web/server/run.bat`** — มันจะ `npm install` (ครั้งแรก) + `npm run build`
+ให้อัตโนมัติก่อนเปิดเซิร์ฟเวอร์ แล้ว `app.py` เสิร์ฟ `frontend-react/dist/` เป็นหน้าเว็บจริง
+
+หรือ build เองก็ได้:
+
 ```bash
 npm run build      # ได้ผลลัพธ์ในโฟลเดอร์ dist/ (ทั้ง index.html และ admin.html)
 ```
 
-จากนั้นแค่ **รีสตาร์ท backend** — `app.py` ตรวจเจอ `frontend-react/dist/` อัตโนมัติ
-แล้วเสิร์ฟเวอร์ชัน React ให้เอง (ถ้ายังไม่ได้ build จะ fallback ไปเวอร์ชัน vanilla ที่ `Web/`
-จึงไม่พังแน่นอน). บังคับเลือกโฟลเดอร์เองได้ด้วย env `FRONTEND_DIR`:
-
-```bash
-set FRONTEND_DIR=C:\Users\Sarunwit\Desktop\WebAppProject\Web   REM กลับไปใช้ vanilla
-```
-
-(เวอร์ชัน vanilla เดิมที่ `Web/` ยังอยู่ครบ ไม่ได้ถูกแตะ — ใช้เป็นตัวเทียบได้)
+`app.py` ชี้ไปที่ `frontend-react/dist/` โดยตรง — เปลี่ยนที่อยู่ได้ด้วย env `FRONTEND_DIR`
 
 ## โครงสร้าง
 

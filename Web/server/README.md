@@ -1,7 +1,7 @@
 # Backend ถอดเสียงภาษาไทย (Wav2Vec2)
 
 เซิร์ฟเวอร์ FastAPI ที่โหลดโมเดล `Wav2Vec2ForCTC` ของคุณ แล้วถอดไฟล์เสียงเป็นข้อความภาษาไทย
-หน้าเว็บ (`../index.html`) จะส่งเสียงมาที่นี่เพื่อถอดข้อความ
+หน้าเว็บ (React ที่ `../frontend-react/`) จะส่งเสียงมาที่นี่เพื่อถอดข้อความ
 
 ## โครงสร้าง
 
@@ -9,11 +9,11 @@
 Desktop/
 ├─ Model/                     ← โมเดลของคุณ (model.safetensors, config.json, ...)
 └─ WebAppProject/Web/
-   ├─ index.html, style.css, script.js   ← หน้าเว็บ
+   ├─ frontend-react/         ← หน้าเว็บ React (Vite) — build เป็น dist/ แล้วเสิร์ฟ
    └─ server/
-      ├─ app.py               ← เซิร์ฟเวอร์ FastAPI
+      ├─ app.py               ← เซิร์ฟเวอร์ FastAPI (เสิร์ฟ frontend-react/dist ด้วย)
       ├─ requirements.txt
-      └─ run.bat              ← ดับเบิลคลิกเพื่อรัน (Windows)
+      └─ run.bat              ← ดับเบิลคลิกเพื่อรัน (build React + เปิดเซิร์ฟเวอร์)
 ```
 
 ## วิธีรัน (ง่ายสุด)
